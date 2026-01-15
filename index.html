@@ -12,12 +12,14 @@
       :root {
         --font-size: 16px;
         --background: #fefefe;
-        --foreground: #1a1a1a;
+        --foreground: oklch(0.145 0 0);
         --card: #ffffff;
-        --card-foreground: #1a1a1a;
+        --card-foreground: oklch(0.145 0 0);
+        --popover: oklch(1 0 0);
+        --popover-foreground: oklch(0.145 0 0);
         --primary: #6366f1;
-        --primary-foreground: #ffffff;
-        --secondary: #f8fafc;
+        --primary-foreground: oklch(1 0 0);
+        --secondary: oklch(0.96 0.005 250);
         --secondary-foreground: #4338ca;
         --muted: #f1f5f9;
         --muted-foreground: #64748b;
@@ -26,8 +28,13 @@
         --destructive: #ef4444;
         --destructive-foreground: #ffffff;
         --border: rgba(0, 0, 0, 0.08);
+        --input: transparent;
         --input-background: #f8fafc;
-        --radius: 1.5rem;
+        --switch-background: #e2e8f0;
+        --font-weight-medium: 500;
+        --font-weight-normal: 400;
+        --ring: #c7d2fe;
+        --radius: 0.75rem;
       }
 
       body {
@@ -35,20 +42,23 @@
         background-color: var(--background);
         color: var(--foreground);
         font-size: var(--font-size);
+        line-height: 1.5;
       }
 
+      /* Enhanced card styling with soft shadows from CSS specification */
       .card {
         background-color: var(--card);
         border-radius: var(--radius);
         border: 1px solid var(--border);
         box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-        transition: box-shadow 0.2s ease;
+        transition: box-shadow 0.2s ease, transform 0.2s ease;
       }
       
       .card:hover {
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
       }
 
+      /* Pastel gradient backgrounds from CSS specification */
       .bg-gradient-pastel-blue {
         background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
       }
@@ -60,6 +70,13 @@
       .bg-gradient-pastel-yellow {
         background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
       }
+
+      /* Base typography from CSS specification */
+      h1 { font-size: 1.5rem; font-weight: var(--font-weight-medium); }
+      h2 { font-size: 1.25rem; font-weight: var(--font-weight-medium); }
+      h3 { font-size: 1.125rem; font-weight: var(--font-weight-medium); }
+      h4 { font-size: 1rem; font-weight: var(--font-weight-medium); }
+      p { font-size: 1rem; font-weight: var(--font-weight-normal); }
 
       /* Custom animations */
       .animate-in {
@@ -84,15 +101,12 @@
       }
       .slide-in-from-right { animation-name: slideInFromRight; }
       .slide-in-from-bottom-4 { animation-name: slideInFromBottom; }
-      .slide-in-from-bottom-6 { animation-name: slideInFromBottom; }
       .slide-in-from-bottom-10 { animation-name: slideInFromBottom; }
-      .slide-in-from-left-4 { animation-name: slideInFromBottom; animation-direction: reverse; transform-origin: left; }
       .fade-in { animation-name: fadeIn; }
       .zoom-in-95 { animation-name: zoomIn; }
-      .zoom-in-110 { animation-name: zoomIn; }
     </style>
 </head>
-<body class="bg-slate-50">
+<body>
     <div id="root"></div>
     <script type="importmap">
 {
