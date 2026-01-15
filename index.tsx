@@ -36,6 +36,7 @@ import { createClient } from "@supabase/supabase-js";
 // --- Supabase Configuration ---
 const SUPABASE_URL = "https://bgqbfwzyycgehcxlgrjk.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWJmd3p5eWNnZWhjeGxncmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODU1MDQsImV4cCI6MjA4NDA2MTUwNH0.VHHnYpVxzjIdwx8_2wa4HtwnPlUS2swB32-_sOMKcmg";
+const API_KEY = "AIzaSyCGpg7pFzt6pfAeS7-KEJKGVJoiVOLhFxM"
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- Types & Constants ---
@@ -322,7 +323,7 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
   const loadEducationRecommendations = async () => {
     setIsTyping(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: API_KEY });
       const walletTxs = await DB.getWalletBalance(user.mobile);
       const activityLogs = await DB.getLoggedBalance(user.mobile);
       
@@ -383,7 +384,7 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
         await DB.saveLoanEligibility(user.mobile, nextData);
         
         // Analyze profile with AI
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const ai = new GoogleGenAI({ apiKey: API_KEY });
         const analysisPrompt = `A user wants a loan. Profile: Business Type: ${nextData.business_type}, Udyam Registered: ${nextData.udyam_registered}, Transaction Method: ${nextData.transaction_method}, Business PAN: ${nextData.has_business_pan}. 
         Recommend 2-3 suitable government loan schemes like MUDRA, PM SVANidhi, etc. 
         For each, provide:
@@ -404,7 +405,7 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
       default:
         // Journey continues (User selects scheme -> Detail -> Guide)
         setIsTyping(true);
-        const aiCont = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const aiCont = new GoogleGenAI({ apiKey: API_KEY });
         const contPrompt = `History: ${JSON.stringify(chatLog)}. User says: ${msg}. If user selected a scheme, provide detailed terms and guide them through next steps: 1. Visit Portal. 2. Apply Now. 3. Pre-fill with existing data. Ask if they want you to guide them.`;
         const respCont = await aiCont.models.generateContent({
           model: 'gemini-3-flash-preview',
@@ -432,7 +433,7 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
 
     setIsTyping(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: API_KEY });
       if (type === 'log_activity') {
         const prompt = `You are a financial transaction parser. Extract details from: "${msg}" in language ${language}. Respond ONLY with a JSON object: { "amount": <number>, "type": "income" | "expense", "category": "<string>", "description": "<string>" }`;
         const resp = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: [{ parts: [{ text: prompt }] }], config: { responseMimeType: "application/json" } });
