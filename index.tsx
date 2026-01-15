@@ -604,13 +604,13 @@ const Dashboard = ({ user, language, walletBalance, totalLogged, onSelectFeature
         </div>
       </div>
 
-      <div className="bg-indigo-900 rounded-3xl p-7 text-white shadow-xl relative overflow-hidden group">
+      <div className="bg-white-900 rounded-3xl p-7 text-black shadow-xl relative overflow-hidden group">
         <div className="relative z-10">
           <h3 className="text-xl font-black mb-2 flex items-center gap-2">
-            <ShieldCheck size={22} className="text-indigo-300" />
+            <ShieldCheck size={22} className="text-black-300" />
             Nidhi Assistant
           </h3>
-          <p className="text-indigo-100/80 text-xs mb-6 leading-relaxed font-medium">
+          <p className="text-black-100/80 text-xs mb-6 leading-relaxed font-medium">
             Smarter loans, easy savings, and financial tips in your language. Talk to me now.
           </p>
           <button 
