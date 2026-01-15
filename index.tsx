@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { 
   Wallet, 
@@ -14,20 +14,15 @@ import {
   ThumbsDown, 
   LogOut, 
   User, 
-  ChevronRight,
-  Upload,
   Trophy,
   X,
-  Smartphone,
   CheckCircle2,
   Trash2,
   ArrowLeft,
   PlayCircle,
-  Clock,
-  Settings,
   ShieldCheck,
-  Languages,
-  AlertCircle
+  AlertCircle,
+  Upload
 } from 'lucide-react';
 import { GoogleGenAI, Type } from "@google/genai";
 
@@ -54,9 +49,9 @@ const TRANSLATIONS: Record<Language, any> = {
     totalLogged: "Logged Activity",
     savingTip: "Saving Tip",
     addMoney: "Add Money",
-    loanEl: "Loan & Application",
+    loanEl: "Loan Eligibility & Application",
     logActivity: "Log Money Activity",
-    education: "Learning Center",
+    education: "Education Center",
     profile: "My Profile",
     logout: "Logout",
     forgetMe: "Forget Me",
@@ -66,16 +61,14 @@ const TRANSLATIONS: Record<Language, any> = {
     streak: "Streak",
     reward: "Daily Reward",
     helpful: "Was this helpful?",
-    uploadDoc: "Upload Doc",
+    uploadDoc: "Upload Documents",
     enterPin: "Enter UPI PIN",
     success: "Transaction Successful",
     discipline: "Discipline Level",
-    chatPlaceholder: "Ask me anything about finance...",
-    loanChatPlaceholder: "Describe your business or ask about eligibility...",
-    activityChatPlaceholder: "e.g., 'Rs. 50 received from Friend' or 'Spent 20 on Tea'",
     yes: "Yes, Erase My Data",
     no: "No, Keep My Data",
-    forgetConfirm: "Are you sure you want to Erase your Data? All your progress, preferences, and transaction history will be permanently deleted."
+    forgetConfirm: "Are you sure you want to Erase your Data? All your progress and saved information will be removed from our DB.",
+    error: "AI Agent is currently unavailable. Please check your connection."
   },
   Hindi: {
     welcome: "निधिसहाय",
@@ -91,7 +84,7 @@ const TRANSLATIONS: Record<Language, any> = {
     totalLogged: "लॉग की गई गतिविधि",
     savingTip: "बचत टिप",
     addMoney: "पैसे जोड़ें",
-    loanEl: "ऋण और आवेदन",
+    loanEl: "ऋण पात्रता और आवेदन",
     logActivity: "पैसों की गतिविधि दर्ज करें",
     education: "शिक्षा केंद्र",
     profile: "मेरी प्रोफ़ाइल",
@@ -107,19 +100,12 @@ const TRANSLATIONS: Record<Language, any> = {
     enterPin: "यूपीआई पिन दर्ज करें",
     success: "लेनदेन सफल",
     discipline: "अनुशासन स्तर",
-    chatPlaceholder: "मुझसे वित्त के बारे में कुछ भी पूछें...",
-    loanChatPlaceholder: "अपने व्यवसाय का वर्णन करें या पात्रता के बारे में पूछें...",
-    activityChatPlaceholder: "जैसे, 'दोस्त से 50 रुपये मिले' या 'चाय पर 20 खर्च किए'",
     yes: "हाँ, डेटा मिटाएं",
     no: "नहीं, रद्द करें",
-    forgetConfirm: "क्या आप वाकई अपना डेटा मिटाना चाहते हैं? आपकी सभी प्रगति और सहेजी गई जानकारी हमेशा के लिए खो जाएगी।"
+    forgetConfirm: "क्या आप वाकई अपना डेटा मिटाना चाहते हैं?",
+    error: "एआई एजेंट वर्तमान में अनुपलब्ध है। कृपया अपना कनेक्शन जांचें।"
   },
-  Marathi: {},
-  Punjabi: {},
-  Telugu: {},
-  Kannada: {},
-  Tamil: {},
-  Malayalam: {}
+  Marathi: {}, Punjabi: {}, Telugu: {}, Kannada: {}, Tamil: {}, Malayalam: {}
 };
 
 const getTranslation = (lang: Language, key: string): string => {
@@ -183,13 +169,6 @@ const DB = {
     const logs = DB.getActivityLogs(mobile);
     logs.push({ ...log, date: new Date().toISOString() });
     localStorage.setItem(`ns_activity_logs_${mobile}`, JSON.stringify(logs));
-  },
-
-  getLoanData: (mobile: string) => JSON.parse(localStorage.getItem(`ns_loan_data_${mobile}`) || '[]'),
-  saveLoanData: (mobile: string, data: any) => {
-    const loans = DB.getLoanData(mobile);
-    loans.push({ ...data, date: new Date().toISOString() });
-    localStorage.setItem(`ns_loan_data_${mobile}`, JSON.stringify(loans));
   },
 
   addLogoutLog: (mobile: string) => {
@@ -282,7 +261,7 @@ const AuthScreen = ({ onLogin }: { onLogin: (user: any, lang: Language) => void 
           <div className="space-y-6">
             <div className="grid grid-cols-4 gap-2 mb-2">
               {LANGUAGES.map(l => (
-                <button key={l} onClick={() => setSelectedLang(l)} className={`p-1.5 rounded-lg text-[10px] font-bold border transition-all ${selectedLang === l ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-slate-50 border-slate-100 text-slate-500 hover:border-indigo-200'}`}>{l}</button>
+                <button key={l} onClick={() => setSelectedLang(l)} className={`p-1.5 rounded-lg text-[10px] font-bold border transition-all ${selectedLang === l ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-slate-50 border-slate-100 text-slate-600 hover:border-indigo-200'}`}>{l}</button>
               ))}
             </div>
             <button onClick={() => setMode('signup')} className="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl shadow-xl shadow-indigo-100 active:scale-95 transition">{getTranslation(selectedLang, 'createAccount')}</button>
@@ -344,14 +323,14 @@ const Dashboard = ({ user, language, walletBalance, totalLogged, onSelectFeature
   return (
     <div className="space-y-6 pb-6">
       <div className="grid grid-cols-2 gap-4 animate-in slide-in-from-bottom-4 duration-500">
-        <div className="card p-5 group">
+        <div className="card p-5 group transition hover:border-indigo-200">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-1.5 bg-indigo-50 rounded-lg text-indigo-600"><Wallet size={14} /></div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{getTranslation(language, 'wallet')}</p>
           </div>
           <p className="text-2xl font-black text-indigo-900">₹{walletBalance}</p>
         </div>
-        <div className="card p-5 group">
+        <div className="card p-5 group transition hover:border-emerald-200">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-1.5 bg-emerald-50 rounded-lg text-emerald-600"><BarChart3 size={14} /></div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{getTranslation(language, 'totalLogged')}</p>
@@ -422,13 +401,17 @@ const AITip = ({ language }: { language: Language }) => {
 
   useEffect(() => {
     const fetchTip = async () => {
-      // Corrected: Obtain API key from process.env.API_KEY and initialize client.
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const resp = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Generate a single short financial saving tip for an Indian worker in ${language}. motivational. Max 15 words.`
-      });
-      setTip(resp.text || tip);
+      try {
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const resp = await ai.models.generateContent({
+          model: 'gemini-3-flash-preview',
+          contents: [{ parts: [{ text: `Generate a single short financial saving tip for an Indian worker in ${language}. Make it motivational and rational. Max 15 words.` }] }]
+        });
+        setTip(resp.text || tip);
+      } catch (e) {
+        console.error("AI Tip Error:", e);
+        setTip("Save a little today for a better tomorrow.");
+      }
     };
     fetchTip();
   }, [language]);
@@ -455,7 +438,9 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
   const [inputText, setInputText] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [activeVideo, setActiveVideo] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if ('webkitSpeechRecognition' in window) {
@@ -477,18 +462,23 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
 
   const initiateLoanAgent = async () => {
     setIsTyping(true);
-    // Corrected: Obtain API key from process.env.API_KEY and initialize client.
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    const systemPrompt = `Greet the user in ${language}. Follow Nidhi Loan Journey: Intro, Business type question. Use **bold**.`;
+    const systemPrompt = `Greet the user in ${language}. You are the Loan Application Assistant. Start the eligibility journey.
+    Ask questions about:
+    1. Business Type
+    2. Udyam Registration (Yes/No)
+    3. Business Plan existence.
+    Ask the first question now.`;
     try {
       const resp = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: "Initiate loan eligibility chat",
+        contents: [{ parts: [{ text: "Initiate loan eligibility chat" }] }],
         config: { systemInstruction: systemPrompt }
       });
       setChatLog([{ role: 'assistant', content: resp.text }]);
     } catch (e) {
-      setChatLog([{ role: 'assistant', content: "Hello! I am your Nidhi Loan Assistant. How can I help you today?" }]);
+      console.error("AI Initiation Error:", e);
+      setChatLog([{ role: 'assistant', content: getTranslation(language, 'error') }]);
     } finally {
       setIsTyping(false);
     }
@@ -499,67 +489,120 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
     setChatLog(prev => [...prev, { role: 'user', content: text }]);
     setInputText('');
     setIsTyping(true);
-    // Corrected: Obtain API key from process.env.API_KEY and initialize client.
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     try {
       if (type === 'log_activity') {
-        const systemPrompt = `Financial parser in ${language}. JSON ONLY: {"amount": number, "type": "income"|"expense", "category": string, "description": string}`;
+        const systemPrompt = `You are a financial transaction parser for workers in India. Extract transaction details from the user input in ${language}.
+        Always return a valid JSON object.`;
         const resp = await ai.models.generateContent({
           model: 'gemini-3-flash-preview',
-          contents: text,
-          config: { systemInstruction: systemPrompt }
+          contents: [{ parts: [{ text: text }] }],
+          config: { 
+            systemInstruction: systemPrompt,
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                amount: { type: Type.NUMBER, description: "The numeric amount extracted." },
+                type: { type: Type.STRING, enum: ['income', 'expense'], description: "The type of transaction." },
+                category: { type: Type.STRING, description: "Inferred category (Food, Rent, Salary, etc.)" },
+                description: { type: Type.STRING, description: "Brief summary." }
+              },
+              required: ['amount', 'type', 'category', 'description']
+            }
+          }
         });
-        const jsonMatch = resp.text?.match(/\{.*\}/s);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]);
+        const parsed = JSON.parse(resp.text || '{}');
+        if (parsed.amount) {
           DB.addActivityLog(user.mobile, parsed);
-          setChatLog(prev => [...prev, { role: 'assistant', content: `**Activity Logged!**\n\n₹${parsed.amount} marked as *${parsed.type}* for ${parsed.category}.` }]);
+          setChatLog(prev => [...prev, { role: 'assistant', content: `**Activity Logged Successfully!**\n\n₹${parsed.amount} marked as *${parsed.type}* for ${parsed.category}.` }]);
         } else {
-          setChatLog(prev => [...prev, { role: 'assistant', content: "Got it! Recorded." }]);
+          setChatLog(prev => [...prev, { role: 'assistant', content: "I couldn't identify the amount. Could you try again?" }]);
         }
       } else if (type === 'loan_eligibility') {
-        const systemPrompt = `Loan Journey Agent in ${language}. Ask questions one by one. Use **bold** and bullet points. Mention janasamarth.in if eligible.`;
+        const systemPrompt = `You are following the Sahay App Agentic AI Loan Journey in ${language}. 
+        Identify if user qualifies for MUDRA, PM SVAnidhi, etc.
+        If eligibility is clear, suggest the links and portal (e.g., janasamarth.in).
+        Ask the checklist questions: Identity Proof, Address Proof, Income Proof, etc.`;
         const resp = await ai.models.generateContent({
           model: 'gemini-3-pro-preview',
-          contents: `History: ${JSON.stringify(chatLog)}. Input: ${text}`,
+          contents: [{ parts: [{ text: `History: ${JSON.stringify(chatLog)}. User: ${text}` }] }],
           config: { systemInstruction: systemPrompt }
         });
         setChatLog(prev => [...prev, { role: 'assistant', content: resp.text }]);
       } else {
         const resp = await ai.models.generateContent({
           model: 'gemini-3-flash-preview',
-          contents: text,
-          config: { systemInstruction: `Nidhi Assistant in ${language}. Bullet points & bold headings.` }
+          contents: [{ parts: [{ text: text }] }],
+          config: { systemInstruction: `You are Nidhi Assistant. Help the user with financial tips, loan procedures, or savings advice in ${language}. Use **bold** and bullet points.` }
         });
         setChatLog(prev => [...prev, { role: 'assistant', content: resp.text }]);
       }
     } catch (e) {
-      setChatLog(prev => [...prev, { role: 'assistant', content: "Error connecting. Try again." }]);
+      console.error("AI Send Error:", e);
+      setChatLog(prev => [...prev, { role: 'assistant', content: getTranslation(language, 'error') }]);
     } finally {
       setIsTyping(false);
     }
   };
 
+  const handleFileUpload = () => {
+    fileInputRef.current?.click();
+  };
+
   if (type === 'education') {
-    const activityLogs = DB.getActivityLogs(user.mobile);
     const recommendedVideos = [
-      { id: 1, title: 'Budgeting Secrets', desc: 'Save ₹100 daily.', trigger: activityLogs.length > 0 },
-      { id: 2, title: 'Mudra Loan Guide', desc: 'Step-by-step.', trigger: true },
-      { id: 3, title: 'Micro-Savings', desc: 'Zero risk growth.', trigger: true }
-    ].filter(v => v.trigger);
+      { id: 'zR0x9wGf9YQ', title: 'Pradhan Mantri Mudra Yojana (PMMY) Guide', desc: 'Step-by-step application process for PMMY loans.' },
+      { id: 'R_I_p0NfU3s', title: 'PM SVAnidhi Scheme Explained', desc: 'Financial assistance for street vendors and micro-businesses.' },
+      { id: 'P283YpA3lGk', title: 'Smart Budgeting & Savings Tips', desc: 'How to manage daily earnings and build a safety net.' },
+      { id: '9L-rG6-7h6U', title: 'Digital Banking Security', desc: 'Learn how to stay safe while using mobile wallets and UPI.' }
+    ];
+
     return (
       <div className="h-full space-y-6 animate-in slide-in-from-bottom-4 duration-300">
         <header className="flex items-center gap-4 py-2 border-b border-slate-100 sticky top-0 bg-slate-50 z-10">
           <button onClick={onClose} className="p-2 bg-white rounded-full shadow-sm hover:bg-slate-50 transition"><ArrowLeft size={20} /></button>
           <h2 className="text-xl font-black text-slate-800">{getTranslation(language, 'education')}</h2>
         </header>
-        <div className="space-y-4">
-          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Recommended</p>
-          {recommendedVideos.map(v => (
-            <div key={v.id} className="card p-5 flex items-center gap-4 group transition-all">
-              <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm"><PlayCircle size={32} /></div>
-              <div className="flex-1"><h4 className="font-black text-sm text-slate-800">{v.title}</h4><p className="text-xs text-slate-500 font-medium mb-1">{v.desc}</p></div>
+
+        {activeVideo ? (
+          <div className="space-y-4">
+            <div className="aspect-video w-full rounded-2xl overflow-hidden shadow-2xl border border-slate-200 bg-black">
+              <iframe
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${activeVideo}?autoplay=1`}
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              ></iframe>
             </div>
+            <button 
+              onClick={() => setActiveVideo(null)}
+              className="w-full py-3 bg-white border border-slate-200 rounded-xl text-indigo-600 font-bold text-sm shadow-sm"
+            >
+              Close Video Player
+            </button>
+          </div>
+        ) : null}
+
+        <div className="space-y-4">
+          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Featured Courses</p>
+          {recommendedVideos.map(v => (
+            <button 
+              key={v.id} 
+              onClick={() => setActiveVideo(v.id)}
+              className={`w-full text-left card p-5 flex items-center gap-4 group transition-all ${activeVideo === v.id ? 'border-indigo-600 bg-indigo-50/50' : ''}`}
+            >
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all shadow-sm ${activeVideo === v.id ? 'bg-indigo-600 text-white' : 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white'}`}>
+                <PlayCircle size={32} />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-black text-sm text-slate-800">{v.title}</h4>
+                <p className="text-xs text-slate-500 font-medium line-clamp-2">{v.desc}</p>
+              </div>
+            </button>
           ))}
         </div>
       </div>
@@ -570,7 +613,7 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
     if (view === 'main') return (
       <div className="space-y-8 animate-in slide-in-from-bottom-4">
         <header className="flex items-center gap-4"><button onClick={onClose} className="p-2 bg-white rounded-full shadow-sm"><ArrowLeft size={20} /></button><h2 className="text-xl font-black text-slate-800">{getTranslation(language, 'addMoney')}</h2></header>
-        <div className="flex flex-col items-center gap-8"><div className="text-center"><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Enter Amount</p><div className="text-6xl font-black text-indigo-900">₹{amount || '0'}</div></div>
+        <div className="flex flex-col items-center gap-8"><div className="text-center"><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Enter Amount</p><div className="text-6xl font-black text-indigo-900 tabular-nums">₹{amount || '0'}</div></div>
           <div className="grid grid-cols-3 gap-4 w-full max-w-xs">{[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '✓'].map(n => (<button key={n} onClick={() => { if (n === 'C') setAmount(amount.slice(0, -1)); else if (n === '✓') amount && setView('upi_pin'); else if (amount.length < 6) setAmount(amount + String(n)); }} className="h-16 bg-white border border-slate-100 rounded-2xl font-black text-xl shadow-sm active:bg-slate-50 active:scale-95 transition">{n}</button>))}</div>
         </div>
       </div>
@@ -592,7 +635,21 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50">{chatLog.map((msg, i) => (<div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-4`}><div className={`p-4 rounded-[1.25rem] max-w-[85%] shadow-sm text-sm font-bold ${msg.role === 'user' ? 'bg-indigo-600 text-white shadow-indigo-100' : 'bg-white border border-slate-100 text-slate-700'}`}><FormattedText text={msg.content} /></div></div>))}
         {isTyping && <div className="text-xs text-slate-400 font-black px-2 flex items-center gap-2"><div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" />Assistant is thinking...</div>}
       </div>
-      <div className="p-4 bg-white border-t flex items-center gap-2"><button onClick={() => { setIsListening(true); recognitionRef.current?.start(); }} className={`p-4 rounded-full transition-all ${isListening ? 'bg-rose-500 text-white animate-pulse' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 shadow-sm'}`}><Mic size={22} /></button><input type="text" placeholder="Type here..." className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 focus:ring-2 ring-indigo-500 outline-none text-sm font-bold" value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} /><button onClick={() => handleSend()} className="p-4 bg-indigo-600 text-white rounded-full shadow-lg active:scale-95 transition"><Send size={22} /></button></div>
+      <div className="p-4 bg-white border-t flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <button onClick={() => { setIsListening(true); recognitionRef.current?.start(); }} className={`p-4 rounded-full transition-all ${isListening ? 'bg-rose-500 text-white animate-pulse' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 shadow-sm'}`}><Mic size={22} /></button>
+          <input type="text" placeholder="Type here..." className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 focus:ring-2 ring-indigo-500 outline-none text-sm font-bold" value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} />
+          <button onClick={() => handleSend()} className="p-4 bg-indigo-600 text-white rounded-full shadow-lg active:scale-95 transition"><Send size={22} /></button>
+        </div>
+        {type === 'loan_eligibility' && (
+          <div className="flex justify-center">
+            <input type="file" ref={fileInputRef} className="hidden" />
+            <button onClick={handleFileUpload} className="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition shadow-sm">
+              <Upload size={18} /> {getTranslation(language, 'uploadDoc')}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -603,16 +660,20 @@ const ProfileScreen = ({ user, language, onBack, onLogout, onForgetMe }: any) =>
   const walletTxs = DB.getWalletTxs(user.mobile);
   const today = new Date().toISOString().split('T')[0];
   const todaySavings = walletTxs.filter((t: any) => t.date.startsWith(today)).reduce((acc: number, t: any) => acc + (t.amount || 0), 0);
+  
+  const levelPoints = user.streak || 0;
+  const currentLevel = Math.floor(levelPoints / 7) + 1;
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <header className="flex items-center gap-4"><button onClick={onBack} className="p-2 bg-white rounded-full shadow-sm"><ArrowLeft size={20} /></button><h2 className="text-xl font-black text-slate-800">{getTranslation(language, 'profile')}</h2></header>
-      <div className="card p-7 flex flex-col items-center text-center group"><div className="w-20 h-20 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 mb-4 mx-auto border-4 border-white shadow-lg"><Trophy size={40} /></div><h3 className="text-xl font-black text-slate-800">Streak: {user.streak || 0} Days</h3><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Level {user.level || 1} Saver</p></div>
+      <div className="card p-7 flex flex-col items-center text-center group"><div className="w-20 h-20 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 mb-4 mx-auto border-4 border-white shadow-lg"><Trophy size={40} /></div><h3 className="text-xl font-black text-slate-800">Streak: {user.streak || 0} Days</h3><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Level {currentLevel} Disciplined Saver</p></div>
       <div className="card p-7 space-y-6"><div className="flex justify-between items-center"><span className="font-black text-slate-800">{getTranslation(language, 'savingTarget')}</span><div className="flex items-center gap-3 bg-slate-50 p-1.5 rounded-xl"><button onClick={() => setTarget((t: number) => Math.max(0, t - 10))} className="w-10 h-10 bg-white shadow-sm rounded-lg font-black">-</button><span className="font-black px-2">₹{target}</span><button onClick={() => setTarget((t: number) => t + 10)} className="w-10 h-10 bg-white shadow-sm rounded-lg font-black">+</button></div></div>
         <div className="space-y-2"><div className="flex justify-between items-end"><div className="text-[11px] font-black text-slate-400 uppercase tracking-tighter">Today's Progress</div><div className="text-sm font-black text-indigo-600">₹{todaySavings} / ₹{target}</div></div><div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden"><div className="bg-indigo-600 h-full rounded-full transition-all duration-700" style={{ width: `${Math.min(100, (todaySavings / target) * 100)}%` }} /></div></div>
       </div>
       <div className="grid grid-cols-1 gap-3">
-        <button onClick={onLogout} className="w-full flex items-center justify-center gap-3 p-5 bg-white border border-slate-100 rounded-2xl text-slate-700 font-black active:scale-95 shadow-sm"><LogOut size={20} className="text-indigo-600" /><span>{getTranslation(language, 'logout')}</span></button>
-        <button onClick={() => setIsForgetModalOpen(true)} className="w-full flex items-center justify-center gap-3 p-5 bg-rose-50 text-rose-600 rounded-2xl font-black active:scale-95 border border-rose-100/50 shadow-sm"><Trash2 size={20} /><span>{getTranslation(language, 'forgetMe')}</span></button>
+        <button onClick={onLogout} className="w-full flex items-center justify-center gap-3 p-5 bg-white border border-slate-100 rounded-2xl text-slate-700 font-black active:scale-95 shadow-sm transition hover:bg-slate-50"><LogOut size={20} className="text-indigo-600" /><span>{getTranslation(language, 'logout')}</span></button>
+        <button onClick={() => setIsForgetModalOpen(true)} className="w-full flex items-center justify-center gap-3 p-5 bg-rose-50 text-rose-600 rounded-2xl font-black active:scale-95 border border-rose-100/50 shadow-sm transition hover:bg-rose-100"><Trash2 size={20} /><span>{getTranslation(language, 'forgetMe')}</span></button>
       </div>
       <Modal isOpen={isForgetModalOpen} onClose={() => setIsForgetModalOpen(false)} title="Delete Everything?"><div className="flex gap-4 p-4 bg-rose-50 rounded-xl text-rose-600 items-start"><AlertCircle className="shrink-0 mt-0.5" size={20} /><p className="text-sm font-bold leading-relaxed">{getTranslation(language, 'forgetConfirm')}</p></div><div className="grid grid-cols-1 gap-3 mt-2"><button onClick={() => { onForgetMe(); setIsForgetModalOpen(false); }} className="p-4 bg-rose-600 text-white rounded-xl font-black shadow-lg active:scale-95 transition">{getTranslation(language, 'yes')}</button><button onClick={() => setIsForgetModalOpen(false)} className="p-4 bg-slate-100 text-slate-700 rounded-xl font-black active:scale-95 transition">{getTranslation(language, 'no')}</button></div></Modal>
     </div>
@@ -666,11 +727,11 @@ const App = () => {
     <div className="min-h-screen font-sans pb-20 selection:bg-indigo-100 selection:text-indigo-900 bg-slate-50/50">
       <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-4 z-50">
         <div className="flex items-center gap-2"><div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-100">NS</div><span className="font-bold text-xl tracking-tight text-indigo-900">NidhiSahay</span></div>
-        <div className="flex items-center gap-3"><button onClick={() => setSubScreen('add_money')} className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full font-bold text-sm border border-indigo-100 active:scale-95 transition shadow-sm"><Wallet size={16} /> ₹{walletBalance}</button><button onClick={() => setIsMenuOpen(true)} className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition"><Menu size={24} /></button></div>
+        <div className="flex items-center gap-3"><button onClick={() => setSubScreen('add_money')} className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full font-bold text-sm border border-indigo-100 active:scale-95 transition shadow-sm hover:bg-indigo-100"><Wallet size={16} /> ₹{walletBalance}</button><button onClick={() => setIsMenuOpen(true)} className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition"><Menu size={24} /></button></div>
       </header>
       {isMenuOpen && (<div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] animate-in fade-in" onClick={() => setIsMenuOpen(false)}><div className="absolute top-0 right-0 w-72 h-full bg-white shadow-2xl flex flex-col p-6 animate-in slide-in-from-right" onClick={e => e.stopPropagation()}><div className="flex justify-between items-center mb-8"><h2 className="text-xl font-black text-slate-800 tracking-tight">Settings</h2><button onClick={() => setIsMenuOpen(false)} className="p-1 hover:bg-slate-50 rounded-full transition"><X /></button></div><div className="space-y-6 flex-1"><div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">App Language</label><div className="grid grid-cols-2 gap-2">{LANGUAGES.map(l => (<button key={l} onClick={() => { setLanguage(l); setIsMenuOpen(false); }} className={`p-2 rounded-xl text-xs font-bold border transition-all ${language === l ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-white border-slate-100 text-slate-600 hover:border-indigo-200'}`}>{l}</button>))}</div></div></div><button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 p-4 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-2xl font-bold transition shadow-sm"><LogOut size={20} /><span>{getTranslation(language, 'logout')}</span></button></div></div>)}
       <main className="mt-16 p-4 space-y-4 max-w-lg mx-auto">{subScreen ? (<FeatureScreen type={subScreen} user={user} language={language} onClose={() => { setSubScreen(null); refreshBalances(user.mobile); }} />) : screen === 'profile' ? (<ProfileScreen user={user} language={language} onBack={() => setScreen('home')} onLogout={handleLogout} onForgetMe={handleForgetMe} />) : (<Dashboard user={user} language={language} walletBalance={walletBalance} totalLogged={totalLogged} onSelectFeature={setSubScreen} />)}</main>
-      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-t border-slate-100 flex items-center justify-around px-4 z-40"><button onClick={() => {setScreen('home'); setSubScreen(null);}} className={`flex flex-col items-center gap-1 transition-all ${screen === 'home' && !subScreen ? 'text-indigo-600 scale-110' : 'text-slate-400'}`}><BarChart3 size={22} /><span className="text-[10px] font-bold">Home</span></button><button onClick={() => setScreen('profile')} className={`flex flex-col items-center gap-1 transition-all ${screen === 'profile' ? 'text-indigo-600 scale-110' : 'text-slate-400'}`}><User size={22} /><span className="text-[10px] font-bold">Profile</span></button></nav>
+      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-t border-slate-100 flex items-center justify-around px-4 z-40"><button onClick={() => {setScreen('home'); setSubScreen(null);}} className={`flex flex-col items-center gap-1 transition-all ${screen === 'home' && !subScreen ? 'text-indigo-600 scale-110 font-bold' : 'text-slate-400'}`}><BarChart3 size={22} /><span className="text-[10px]">Home</span></button><button onClick={() => setScreen('profile')} className={`flex flex-col items-center gap-1 transition-all ${screen === 'profile' ? 'text-indigo-600 scale-110 font-bold' : 'text-slate-400'}`}><User size={22} /><span className="text-[10px]">{getTranslation(language, 'profile')}</span></button></nav>
     </div>
   );
 };
