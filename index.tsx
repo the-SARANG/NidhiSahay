@@ -402,7 +402,7 @@ const AITip = ({ language }: { language: Language }) => {
   useEffect(() => {
     const fetchTip = async () => {
       try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const ai = new GoogleGenAI({ apiKey: process.env.VITE_NidhiSahayKey });
         const resp = await ai.models.generateContent({
           model: 'gemini-3-flash-preview',
           contents: [{ parts: [{ text: `Generate a single short financial saving tip for an Indian worker in ${language}. Make it motivational and rational. Max 15 words.` }] }]
@@ -461,7 +461,7 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
 
   const initiateLoanAgent = async () => {
     setIsTyping(true);
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: process.env.VITE_NidhiSahayKey });
     const systemPrompt = `Greet the user in ${language}. You are the Loan Application Assistant. Start the eligibility journey.
     Ask questions about:
     1. Business Type
@@ -488,7 +488,7 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
     setChatLog(prev => [...prev, { role: 'user', content: text }]);
     setInputText('');
     setIsTyping(true);
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: process.env.VITE_NidhiSahayKey });
     try {
       if (type === 'log_activity') {
         const systemPrompt = `You are a financial transaction parser for workers in India. Extract transaction details from the user input in ${language}.
