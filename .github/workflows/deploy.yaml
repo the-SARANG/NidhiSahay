@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ["the-SARANG-patch-1"] # Only runs when you push to main
+    branches: ["main"] # Only runs when you push to main
 
 permissions:
   contents: read
