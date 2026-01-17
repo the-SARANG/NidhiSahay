@@ -36,7 +36,6 @@ import { createClient } from "@supabase/supabase-js";
 // --- Supabase Configuration ---
 const SUPABASE_URL = "https://bgqbfwzyycgehcxlgrjk.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJncWJmd3p5eWNnZWhjeGxncmprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0ODU1MDQsImV4cCI6MjA4NDA2MTUwNH0.VHHnYpVxzjIdwx8_2wa4HtwnPlUS2swB32-_sOMKcmg";
-const API_KEY = "AIzaSyCGpg7pFzt6pfAeS7-KEJKGVJoiVOLhFxM"
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- Types & Constants ---
@@ -104,7 +103,36 @@ const DB = {
     return (data || []).reduce((acc, t) => t.type === 'credit' ? acc + t.amount : acc - t.amount, 0);
   },
   async addWalletTx(mobile: string, amount: number) {
+    const now = new Date();
+    const todayStart = new Date(now.setHours(0, 0, 0, 0)).toISOString();
+    const todayEnd = new Date(now.setHours(23, 59, 59, 999)).toISOString();
+
+    // 1. Record the actual transaction
     await supabase.from('wallet_transactions').insert([{ profile_mobile: mobile, amount, type: 'credit', date: new Date().toISOString() }]);
+
+    // 2. Daily target logic
+    const profile = await this.getProfile(mobile);
+    if (profile) {
+      const { data: txsToday } = await supabase.from('wallet_transactions')
+        .select('amount')
+        .eq('profile_mobile', mobile)
+        .eq('type', 'credit')
+        .gte('date', todayStart)
+        .lte('date', todayEnd);
+
+      const totalSavedToday = (txsToday || []).reduce((sum, tx) => sum + tx.amount, 0);
+
+      if (totalSavedToday >= profile.target) {
+        // Log in daily_targets_met table. This table is used for streak and analytical tracking.
+        // The check resets daily because we query by CURRENT_DATE or equivalent.
+        await supabase.from('daily_targets_met').upsert({
+          profile_mobile: mobile,
+          date: new Date().toISOString().split('T')[0],
+          amount_saved: totalSavedToday,
+          target_amount: profile.target
+        }, { onConflict: 'profile_mobile,date' });
+      }
+    }
   },
   async getLoggedBalance(mobile: string) {
     const { data } = await supabase.from('money_logs').select('amount, type').eq('profile_mobile', mobile);
@@ -113,14 +141,14 @@ const DB = {
   async addMoneyLog(mobile: string, log: any) {
     await supabase.from('money_logs').insert([{ profile_mobile: mobile, ...log, date: new Date().toISOString() }]);
   },
-  async saveLoanEligibility(mobile: string, loanData: any) {
+  async saveLoanEligibility(mobile: string, loanData: any, interactions: any[]) {
     await supabase.from('loan_eligibility').insert([{
       profile_mobile: mobile,
       business_type: loanData.business_type,
       udyam_registered: loanData.udyam_registered,
       transaction_method: loanData.transaction_method,
       has_business_pan: loanData.has_business_pan,
-      data_json: loanData
+      miscellaneous: { interactions } // Store full journey for analytics
     }]);
   },
   async clearUserData(mobile: string) {
@@ -132,7 +160,6 @@ const DB = {
 const FormattedText = ({ text }: { text: string }) => {
   const lines = text.split('\n');
   return <div className="space-y-1">{lines.map((l, i) => {
-    // Basic Markdown handling for bold
     if (l.includes('**')) {
       const parts = l.split(/(\*\*.*?\*\*)/);
       return (
@@ -228,7 +255,7 @@ const AuthScreen = ({ onLogin }: { onLogin: (user: any) => void }) => {
         <div className="w-full max-w-sm space-y-8 text-center animate-in slide-in-from-bottom-4">
           <h2 className="text-xl font-black text-indigo-900">{getTranslation(selectedLang, mode === 'mpin' ? 'setMpin' : 'confirmMpin')}</h2>
           <div className="flex justify-center gap-4">
-            {[1, 2, 3, 4].map(i => <div key={i} className={`w-3 h-3 rounded-full border-2 ${ (mode === 'mpin' ? formData.mpin : formData.confirmMpin).length >= i ? 'bg-indigo-600 border-indigo-600' : 'bg-white'}`} />)}
+            {[1, 2, 3, 4].map(i => <div key={i} className={`w-3 h-3 rounded-full border-2 ${ (mode === 'mpin' ? formData.mpin : formData.confirmMpin).length >= i ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-200'}`} />)}
           </div>
           <div className="grid grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '✓'].map(n => (
@@ -301,6 +328,7 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
   const [chatLog, setChatLog] = useState<any[]>([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const [loanJourneyState, setLoanJourneyState] = useState({
     step: 0,
     data: {
@@ -312,24 +340,69 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
   });
   const [educationVideos, setEducationVideos] = useState<any[]>([]);
 
+  const recognitionRef = useRef<any>(null);
+
   useEffect(() => {
     if (type === 'loan_eligibility') {
       setChatLog([{ role: 'assistant', content: "Hello! I can help you with a loan for your business. To find the best options, I need to build your profile first.\n\n**What is your business type?** (e.g., Kirana store, Tailoring shop, etc.)" }]);
     } else if (type === 'education') {
       loadEducationRecommendations();
     }
-  }, [type]);
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      
+      const langMap: Record<string, string> = {
+        'English': 'en-US', 'Hindi': 'hi-IN', 'Marathi': 'mr-IN', 'Telugu': 'te-IN',
+        'Kannada': 'kn-IN', 'Tamil': 'ta-IN', 'Malayalam': 'ml-IN', 'Punjabi': 'pa-IN'
+      };
+      recognitionRef.current.lang = langMap[language] || 'en-US';
+
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+          handleSend(transcript);
+        }
+      };
+
+      recognitionRef.current.onstart = () => setIsListening(true);
+      recognitionRef.current.onend = () => setIsListening(false);
+    }
+
+    return () => recognitionRef.current?.stop();
+  }, [type, language]);
+
+  const toggleListening = () => {
+    if (isListening) recognitionRef.current?.stop();
+    else recognitionRef.current?.start();
+  };
+
+  const translateToEnglish = async (text: string): Promise<string> => {
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const resp = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: [{ parts: [{ text: `Translate the following user input to English. Return only the translated text: "${text}"` }] }]
+      });
+      return resp.text.trim();
+    } catch (e) {
+      console.error("Translation error", e);
+      return text;
+    }
+  };
 
   const loadEducationRecommendations = async () => {
     setIsTyping(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: API_KEY });
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const walletTxs = await DB.getWalletBalance(user.mobile);
       const activityLogs = await DB.getLoggedBalance(user.mobile);
       
       const prompt = `Based on a user with wallet balance ${walletTxs} and logged financial activity ${activityLogs}, recommend 3-4 specific educational videos for their financial growth. If there is no sufficient data, give 3-4 videos on Basic Finance. 
-      Respond with ONLY a JSON array of objects: [{ "id": "youtube_id", "title": "video_title", "description": "short_desc" }] 
-      Example YouTube IDs: "Z8f-1u3bL2w", "9L-rG6-7h6U", "P283YpA3lGk".`;
+      Respond with ONLY a JSON array of objects: [{ "id": "youtube_id", "title": "video_title", "description": "short_desc" }]`;
 
       const resp = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -338,25 +411,18 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
       });
 
       const parsed = JSON.parse(resp.text || '[]');
-      if (parsed.length === 0) {
-        setEducationVideos([
-          { id: "Z8f-1u3bL2w", title: "Personal Finance 101", description: "Learn the basics of managing your money effectively." },
-          { id: "9L-rG6-7h6U", title: "Saving for the Future", description: "Smart strategies to grow your savings day by day." },
-          { id: "P283YpA3lGk", title: "Understanding Loans", description: "A guide to business and personal credit in India." }
-        ]);
-      } else {
-        setEducationVideos(parsed);
-      }
+      setEducationVideos(parsed.length ? parsed : [
+        { id: "Z8f-1u3bL2w", title: "Personal Finance 101", description: "Learn the basics of managing your money effectively." },
+        { id: "9L-rG6-7h6U", title: "Saving for the Future", description: "Smart strategies to grow your savings day by day." },
+        { id: "P283YpA3lGk", title: "Understanding Loans", description: "A guide to business and personal credit in India." }
+      ]);
     } catch (e) {
-      console.error(e);
       setEducationVideos([
         { id: "Z8f-1u3bL2w", title: "Personal Finance 101", description: "Learn the basics of managing your money effectively." },
         { id: "9L-rG6-7h6U", title: "Saving for the Future", description: "Smart strategies to grow your savings day by day." },
         { id: "P283YpA3lGk", title: "Understanding Loans", description: "A guide to business and personal credit in India." }
       ]);
-    } finally {
-      setIsTyping(false);
-    }
+    } finally { setIsTyping(false); }
   };
 
   const handleLoanJourneyStep = async (msg: string) => {
@@ -366,7 +432,7 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
 
     switch (loanJourneyState.step) {
       case 0:
-        nextData.business_type = msg;
+        nextData.business_type = await translateToEnglish(msg);
         assistantMessage = "Great. Is your business **Udyam Registered**? (Yes/No)";
         break;
       case 1:
@@ -374,43 +440,34 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
         assistantMessage = "Got it. How do you mostly handle your business **transactions**? (e.g., Cash, Digital, or Both)";
         break;
       case 2:
-        nextData.transaction_method = msg;
+        nextData.transaction_method = await translateToEnglish(msg);
         assistantMessage = "Understood. One last thing for the profile: Do you have a **Business PAN Card**? (Yes/No)";
         break;
       case 3:
         nextData.has_business_pan = msg.toLowerCase().includes('yes');
         setIsTyping(true);
-        // Save to DB
-        await DB.saveLoanEligibility(user.mobile, nextData);
+        // Persist interaction history for analysis in miscellaneous column
+        await DB.saveLoanEligibility(user.mobile, nextData, [...chatLog, { role: 'user', content: msg }]);
         
-        // Analyze profile with AI
-        const ai = new GoogleGenAI({ apiKey: API_KEY });
-        const analysisPrompt = `A user wants a loan. Profile: Business Type: ${nextData.business_type}, Udyam Registered: ${nextData.udyam_registered}, Transaction Method: ${nextData.transaction_method}, Business PAN: ${nextData.has_business_pan}. 
-        Recommend 2-3 suitable government loan schemes like MUDRA, PM SVANidhi, etc. 
-        For each, provide:
-        - Scheme Name
-        - Terms: (Interest rate, max amount)
-        - Eligibility: (Brief)
-        - Portal: (Link to portal like janasamarth.in)
-        Format with bullet points. End with: "Which scheme would you like to know more about?"`;
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const analysisPrompt = `A user wants a loan. Profile (translated to English): Business Type: ${nextData.business_type}, Udyam Registered: ${nextData.udyam_registered}, Transaction Method: ${nextData.transaction_method}, Business PAN: ${nextData.has_business_pan}. 
+        Recommend 2-3 suitable government loan schemes like MUDRA, PM SVANidhi, etc. Provide Link to portal janasamarth.in. Format with bullet points. End with: "Which scheme would you like to know more about?"`;
 
         const resp = await ai.models.generateContent({
           model: 'gemini-3-flash-preview',
           contents: [{ parts: [{ text: analysisPrompt }] }],
-          config: { systemInstruction: `You are an expert financial loan agent for small businesses in India. Language: ${language}` }
+          config: { systemInstruction: `You are an expert financial loan agent for small businesses in India.` }
         });
         assistantMessage = resp.text || "Thank you. I'm analyzing your profile against available loan schemes...";
         setIsTyping(false);
         break;
       default:
-        // Journey continues (User selects scheme -> Detail -> Guide)
         setIsTyping(true);
-        const aiCont = new GoogleGenAI({ apiKey: API_KEY });
-        const contPrompt = `History: ${JSON.stringify(chatLog)}. User says: ${msg}. If user selected a scheme, provide detailed terms and guide them through next steps: 1. Visit Portal. 2. Apply Now. 3. Pre-fill with existing data. Ask if they want you to guide them.`;
+        const aiCont = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const respCont = await aiCont.models.generateContent({
           model: 'gemini-3-flash-preview',
-          contents: [{ parts: [{ text: contPrompt }] }],
-          config: { systemInstruction: `You are Nidhi Assistant guiding a user through a loan application. Language: ${language}` }
+          contents: [{ parts: [{ text: `History: ${JSON.stringify(chatLog)}. User says: ${msg}. Provide detailed terms and guide them to janasamarth.in.` }] }],
+          config: { systemInstruction: `You are Nidhi Assistant guiding a user through a loan application.` }
         });
         assistantMessage = respCont.text || "I can help you apply. Would you like me to guide you through the next steps?";
         setIsTyping(false);
@@ -433,9 +490,9 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
 
     setIsTyping(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: API_KEY });
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       if (type === 'log_activity') {
-        const prompt = `You are a financial transaction parser. Extract details from: "${msg}" in language ${language}. Respond ONLY with a JSON object: { "amount": <number>, "type": "income" | "expense", "category": "<string>", "description": "<string>" }`;
+        const prompt = `You are a financial transaction parser. Extract details from: "${msg}" in language ${language}. Respond ONLY with a JSON object: { "amount": <number>, "type": "income" | "expense", "category": "<string>", "description": "<string>" }. Ensure 'category' and 'description' are in English for the database.`;
         const resp = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: [{ parts: [{ text: prompt }] }], config: { responseMimeType: "application/json" } });
         const parsed = JSON.parse(resp.text || '{}');
         if (parsed.amount) {
@@ -445,7 +502,7 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
           setChatLog(prev => [...prev, { role: 'assistant', content: "I couldn't identify the amount. Please try saying it like 'Spent 50 on tea'." }]);
         }
       } else {
-        const resp = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: [{ parts: [{ text: msg }] }], config: { systemInstruction: `You are Nidhi Assistant. Help with ${type} in ${language}. Use **bold** text for important points.` } });
+        const resp = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: [{ parts: [{ text: msg }] }], config: { systemInstruction: `You are Nidhi Assistant. Help with ${type} in ${language}.` } });
         setChatLog(prev => [...prev, { role: 'assistant', content: resp.text }]);
       }
     } catch (e) { console.error(e); } finally { setIsTyping(false); }
@@ -461,7 +518,7 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
         <div className="text-center"><p className="text-xs font-bold text-slate-400 mb-2 uppercase">Amount to Add</p><h2 className="text-6xl font-black text-indigo-900">₹{amount || '0'}</h2></div>
         <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto px-4">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '✓'].map(n => (
-            <button key={n} onClick={() => { if (n === 'C') setAmount(amount.slice(0, -1)); else if (n === '✓') amount && setView('pin'); else if (amount.length < 6) setAmount(amount + n); }} className="h-16 bg-white border border-slate-100 rounded-2xl font-black text-xl shadow-sm active:bg-slate-100 active:scale-95 transition">{n}</button>
+            <button key={n} onClick={() => { if (n === 'C') setAmount(amount.slice(0, -1)); else if (n === '✓') amount && setView('pin'); else if (amount.length < 6) setAmount(amount + n); }} className="h-16 bg-white border border-slate-100 rounded-2xl font-black text-xl shadow-sm active:bg-slate-100 transition">{n}</button>
           ))}
         </div>
       </div>
@@ -482,7 +539,7 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
         <div className="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-6 shadow-xl"><CheckCircle2 size={56} /></div>
         <h2 className="text-3xl font-black text-slate-900 mb-2">Transaction Successful</h2>
         <p className="text-slate-400 font-bold mb-8">₹{amount} added to your Nidhi Wallet.</p>
-        <button onClick={onClose} className="w-full max-w-sm bg-indigo-600 text-white font-black py-5 rounded-2xl shadow-xl active:scale-95 transition">Done</button>
+        <button onClick={onClose} className="w-full max-w-sm bg-indigo-600 text-white font-black py-5 rounded-2xl shadow-xl">Done</button>
       </div>
     );
   }
@@ -499,20 +556,11 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
             <Info className="text-indigo-600" size={20}/>
             <p className="text-xs font-bold text-indigo-900">Recommended for you by Nidhi AI based on your financial logs.</p>
           </div>
-          {isTyping && <div className="text-center py-10 font-bold text-indigo-400 animate-pulse">Finding best recommendations...</div>}
           <div className="grid grid-cols-1 gap-6">
             {educationVideos.map((video, idx) => (
               <div key={idx} className="card p-4 space-y-3">
                 <div className="aspect-video w-full rounded-xl overflow-hidden shadow-inner bg-slate-900">
-                   <iframe 
-                    width="100%" 
-                    height="100%" 
-                    src={`https://www.youtube.com/embed/${video.id}`} 
-                    title={video.title} 
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowFullScreen
-                  />
+                   <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${video.id}`} title={video.title} frameBorder="0" allowFullScreen />
                 </div>
                 <h4 className="font-black text-slate-800">{video.title}</h4>
                 <p className="text-xs text-slate-500 font-medium">{video.description}</p>
@@ -531,25 +579,21 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
         <h3 className="font-black text-indigo-900">{getTranslation(language, type)}</h3>
       </header>
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/30">
-        {chatLog.map((m, i) => <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-4`}><div className={`p-4 rounded-2xl max-w-[85%] text-sm font-bold shadow-sm ${m.role === 'user' ? 'bg-indigo-600 text-white shadow-indigo-100' : 'bg-white border border-slate-100 text-slate-700'}`}><FormattedText text={m.content} /></div></div>)}
+        {chatLog.map((m, i) => <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-4`}><div className={`p-4 rounded-2xl max-w-[85%] text-sm font-bold shadow-sm ${m.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-100 text-slate-700'}`}><FormattedText text={m.content} /></div></div>)}
         {isTyping && <div className="text-xs text-slate-400 font-black animate-pulse flex items-center gap-2"><div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce"/> Thinking...</div>}
       </div>
       <div className="p-4 bg-white border-t flex flex-col gap-3 shadow-2xl">
         <div className="flex gap-2">
-          <button className="p-4 bg-indigo-50 text-indigo-600 rounded-full hover:bg-indigo-100 transition"><Mic size={22} /></button>
-          <input type="text" placeholder="Type message..." className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 font-bold text-sm outline-none focus:ring-2 ring-indigo-500 transition" value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} />
-          <button onClick={() => handleSend()} className="p-4 bg-indigo-600 text-white rounded-full shadow-lg active:scale-95 transition"><Send size={22} /></button>
+          <button onClick={toggleListening} className={`p-4 rounded-full transition relative ${isListening ? 'bg-rose-500 text-white animate-pulse' : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'}`}><Mic size={22} /></button>
+          <input type="text" placeholder={isListening ? "Listening..." : "Type message..."} className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 font-bold text-sm outline-none focus:ring-2 ring-indigo-500 transition" value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} />
+          <button onClick={() => handleSend()} className="p-4 bg-indigo-600 text-white rounded-full shadow-lg transition"><Send size={22} /></button>
         </div>
-        {type === 'loan_eligibility' && (
-          <button className="flex items-center justify-center gap-2 p-3 bg-slate-100 rounded-xl text-slate-600 font-bold text-xs hover:bg-slate-200 transition">
-            <Upload size={14}/> Upload Documents
-          </button>
-        )}
       </div>
     </div>
   );
 };
 
+// --- Profile Screen Component ---
 const ProfileScreen = ({ user, language, onBack, onLogout, onForgetMe }: any) => {
   const [target, setTarget] = useState(user.target || 100);
   const handleUpdateTarget = async (newVal: number) => {
@@ -562,26 +606,24 @@ const ProfileScreen = ({ user, language, onBack, onLogout, onForgetMe }: any) =>
       <header className="flex items-center gap-4"><button onClick={onBack} className="p-2 hover:bg-white rounded-full"><ArrowLeft size={20} /></button><h2 className="text-xl font-black text-indigo-900">My Profile</h2></header>
       <div className="card p-6 flex items-center gap-6">
         <div className="w-16 h-16 bg-indigo-100 rounded-3xl flex items-center justify-center text-indigo-600 shadow-inner"><User size={32} /></div>
-        <div>
-          <h3 className="text-lg font-black text-slate-800">{user.name}</h3>
-          <p className="text-sm text-slate-500 font-bold">{user.mobile}</p>
-        </div>
+        <div><h3 className="text-lg font-black text-slate-800">{user.name}</h3><p className="text-sm text-slate-500 font-bold">{user.mobile}</p></div>
       </div>
       <div className="card p-6 space-y-6">
-        <div className="flex justify-between items-center"><span className="font-bold text-slate-600">Daily Savings Target</span><div className="flex items-center gap-3 bg-slate-50 p-2 rounded-xl"><button onClick={() => handleUpdateTarget(Math.max(0, target - 50))} className="w-8 h-8 bg-white border border-slate-200 rounded-lg font-bold shadow-sm hover:bg-slate-50">-</button><span className="font-black px-2 tabular-nums">₹{target}</span><button onClick={() => handleUpdateTarget(target + 50)} className="w-8 h-8 bg-white border border-slate-200 rounded-lg font-bold shadow-sm hover:bg-slate-50">+</button></div></div>
+        <div className="flex justify-between items-center"><span className="font-bold text-slate-600">Daily Savings Target</span><div className="flex items-center gap-3 bg-slate-50 p-2 rounded-xl"><button onClick={() => handleUpdateTarget(Math.max(0, target - 50))} className="w-8 h-8 bg-white border border-slate-200 rounded-lg font-bold shadow-sm">-</button><span className="font-black px-2 tabular-nums">₹{target}</span><button onClick={() => handleUpdateTarget(target + 50)} className="w-8 h-8 bg-white border border-slate-200 rounded-lg font-bold shadow-sm">+</button></div></div>
         <div className="flex items-center gap-4 p-4 bg-indigo-50 border border-indigo-100 rounded-3xl shadow-sm">
           <div className="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-md"><Star size={24} /></div>
           <div><h4 className="font-black text-indigo-900">Level {user.level || 1} Saver</h4><p className="text-[10px] text-indigo-700 font-black tracking-wide uppercase">Keep saving to increase your level!</p></div>
         </div>
       </div>
       <div className="grid grid-cols-1 gap-3">
-        <button onClick={onLogout} className="w-full flex items-center justify-center gap-3 p-5 bg-white border border-slate-200 rounded-3xl text-slate-700 font-black shadow-sm transition active:scale-95 hover:bg-slate-50"><LogOut size={20} className="text-indigo-600" /><span>Logout</span></button>
-        <button onClick={onForgetMe} className="w-full flex items-center justify-center gap-3 p-5 bg-rose-50 text-rose-600 rounded-3xl font-black shadow-sm transition active:scale-95 border border-rose-100 hover:bg-rose-100"><Trash2 size={20} /><span>Forget Me</span></button>
+        <button onClick={onLogout} className="w-full flex items-center justify-center gap-3 p-5 bg-white border border-slate-200 rounded-3xl text-slate-700 font-black shadow-sm transition hover:bg-slate-50"><LogOut size={20} className="text-indigo-600" /><span>Logout</span></button>
+        <button onClick={onForgetMe} className="w-full flex items-center justify-center gap-3 p-5 bg-rose-50 text-rose-600 rounded-3xl font-black shadow-sm transition border border-rose-100 hover:bg-rose-100"><Trash2 size={20} /><span>Forget Me</span></button>
       </div>
     </div>
   );
 };
 
+// --- App Root Component ---
 const App = () => {
   const [screen, setScreen] = useState<'auth' | 'home' | 'profile' | 'loading'>('loading');
   const [subScreen, setSubScreen] = useState<string | null>(null);
@@ -634,7 +676,7 @@ const App = () => {
     <div className="min-h-screen bg-slate-50/50 pb-20">
       <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-4 z-50 shadow-sm">
         <div className="flex items-center gap-2"><div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-lg">NS</div><span className="font-black text-xl tracking-tight text-indigo-900">NidhiSahay</span></div>
-        <div className="flex items-center gap-3"><button onClick={() => setSubScreen('add_money')} className="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full font-black text-xs border border-indigo-100 shadow-sm hover:bg-indigo-100 active:scale-95 transition">₹{balances.wallet}</button><button onClick={() => setIsMenuOpen(true)} className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition"><Menu size={24} /></button></div>
+        <div className="flex items-center gap-3"><button onClick={() => setSubScreen('add_money')} className="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full font-black text-xs border border-indigo-100 shadow-sm hover:bg-indigo-100 transition">₹{balances.wallet}</button><button onClick={() => setIsMenuOpen(true)} className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition"><Menu size={24} /></button></div>
       </header>
 
       {isMenuOpen && (
@@ -650,7 +692,7 @@ const App = () => {
               </div>
               <button onClick={handleForgetMe} className="w-full flex items-center gap-3 p-4 text-rose-600 bg-rose-50 rounded-2xl font-black shadow-sm active:scale-95 transition hover:bg-rose-100"><Trash2 size={20} /> {getTranslation(language, 'forgetMe')}</button>
             </div>
-            <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 p-5 text-slate-700 bg-slate-100 rounded-3xl font-black active:scale-95 transition hover:bg-slate-200"><LogOut size={22} /><span>{getTranslation(language, 'logout')}</span></button>
+            <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 p-5 text-slate-700 bg-slate-100 rounded-3xl font-black transition hover:bg-slate-200"><LogOut size={22} /><span>{getTranslation(language, 'logout')}</span></button>
           </div>
         </div>
       )}
@@ -663,7 +705,7 @@ const App = () => {
 
       <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-md border-t border-slate-100 flex items-center justify-around px-4 z-40">
         <button onClick={() => { setScreen('home'); setSubScreen(null); }} className={`flex flex-col items-center gap-1 transition-all ${screen === 'home' && !subScreen ? 'text-indigo-600 scale-110 font-black' : 'text-slate-400 font-bold hover:text-indigo-400'}`}><BarChart3 size={22} /><span className="text-[10px] uppercase tracking-tighter">Home</span></button>
-        <button onClick={() => { setSubScreen('ai_chat'); }} className={`flex flex-col items-center gap-1.5 p-3 -mt-8 bg-indigo-600 text-white rounded-full shadow-2xl shadow-indigo-200 active:scale-95 transition hover:bg-indigo-700`}><Mic size={24} /></button>
+        <button onClick={() => { setSubScreen('ai_chat'); }} className={`flex flex-col items-center gap-1.5 p-3 -mt-8 bg-indigo-600 text-white rounded-full shadow-2xl transition hover:bg-indigo-700`}><Mic size={24} /></button>
         <button onClick={() => { setScreen('profile'); }} className={`flex flex-col items-center gap-1 transition-all ${screen === 'profile' ? 'text-indigo-600 scale-110 font-black' : 'text-slate-400 font-bold hover:text-indigo-400'}`}><User size={22} /><span className="text-[10px] uppercase tracking-tighter">Profile</span></button>
       </nav>
     </div>
