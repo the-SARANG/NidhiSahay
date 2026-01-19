@@ -64,73 +64,16 @@ const TRANSLATIONS: Record<Language, any> = {
   },
   Hindi: { welcome: "निधिसहाय", tagline: "आपका वित्तीय एआई एजेंट", createAccount: "नया खाता बनाएं", login: "लॉगिन", wallet: "वॉलेट बैलेंस", addMoney: "पैसे जोड़ें", loanEl: "ऋण पात्रता", logActivity: "गतिविधि दर्ज करें", education: "शिक्षा", profile: "मेरी प्रोफाइल", logout: "लॉगआउट", forgetMe: "मुझे भूल जाओ", success: "सफल!" },
   Marathi: { welcome: "निधिसहाय", tagline: "तुमचा आर्थिक AI एजंट", createAccount: "नवीन खाते उघडा", login: "लॉगिन", wallet: "वॉलेट शिल्लक", addMoney: "पैसे जोडा", loanEl: "कर्ज पात्रता", logActivity: "व्यवहार नोंदवा", education: "शिक्षण", profile: "माझी प्रोफाइल", logout: "लॉगआउट", forgetMe: "माझी माहिती पुसा", success: "यशस्वी!" },
-  Punjabi: { welcome: "ਨਿਧੀਸਹਾਇ", tagline: "ਤੁਹਾਡਾ ਵਿੱਤੀ AI ਏਜੰਟ", createAccount: "ਨਵਾਂ ਖਾਤਾ ਬਣਾਓ", login: "ਲੌਗਇਨ", wallet: "ਬਕਾਇਆ", addMoney: "ਪੈਸੇ ਜੋੜੋ", loanEl: "ਕਰਜ਼ੇ ਦੀ ਪਾਤਰਤਾ", logActivity: "ਗਤੀਵਿਧੀ", education: "ਸਿੱਖਿਆ", logout: "ਲੌਗਆਉਟ", profile: "ਮੇਰੀ ਪ੍ਰੋਫਾਈਲ", success: "ਸਫਲ!" },
+  Punjabi: { welcome: "ਨਿਧੀਸਹਾਇ", tagline: "ਤੁਹਾਡਾ ਵਿੱਤੀ AI ਏਜੰਟ", createAccount: "ਨਵਾਂ ਖਾਟਾ ਬਣਾਓ", login: "ਲੌਗਇਨ", wallet: "ਬਕਾਇਆ", addMoney: "ਪੈਸੇ ਜੋੜੋ", loanEl: "ਕਰਜ਼ੇ ਦੀ ਪਾਤਰਤਾ", logActivity: "ਗਤੀਵਿਧੀ", education: "ਸਿੱਖਿਆ", logout: "ਲੌਗਆਉਟ", profile: "ਮੇਰੀ ਪ੍ਰੋਫਾਈਲ", success: "ਸਫਲ!" },
   Telugu: { welcome: "నిధిసహాయ్", tagline: "మీ ఆర్థిక AI ఏజెంట్", createAccount: "కొత్త ఖాతాను సృష్టించండి", login: "లాగిన్", wallet: "వాలెట్ బ్యాలెన్స్", addMoney: "డబ్బు జోడించండి", loanEl: "రుణ అర్హత", logActivity: "కార్యాచరణ", education: "విద్య", logout: "లాగ్అవుట్", profile: "నా ప్రొఫైల్", success: "విజయం!" },
-  Kannada: { welcome: "ನಿಧಿಸಹಾಯ್", tagline: "ನಿಮ್ಮ ಹಣಕาสಿನ AI ಏಜೆಂಟ್", createAccount: "ಹೊಸ ಖಾತೆಯನ್ನು ರಚಿಸಿ", login: "ಲಾಗಿನ್", wallet: "ವ್ಯಾಲೆಟ್ ಬ್ಯಾಲೆನ್ಸ್", addMoney: "ಹಣ ಸೇರಿಸಿ", loanEl: "ಸಾಲದ ಅರ್ಹತೆ", logActivity: "ಚಟುವಟಿಕೆ", education: "ಶಿಕ್ಷಣ", logout: "ಲಾಗ್ಔಟ್", profile: "ನನ್ನ ಪ್ರೊಫೈಲ್", success: "ಯಶಸ್ವಿ!" },
-  Tamil: { welcome: "நிதிசஹாய்", tagline: "உங்கள் நிதி AI முகவர்", createAccount: "புதிய கணக்கை உருவாக்கவும்", login: "உள்நுழை", wallet: "இருப்பு", addMoney: "பணம் சேர்க்க", loanEl: "கடன் தகுதி", logActivity: "செயல்பாடு", education: "கல்வி", logout: "வெளியேறு", profile: "எனது சுயవిவரம்", success: "வெற்றி!" },
-  Malayalam: { welcome: "ನಿಧಿಸഹಾಯ್", tagline: "നിങ്ങളുടെ സാമ്പത്തിക AI ഏജന്റ്", createAccount: "പുതിയ അക്കൗണ്ട് സൃഷ്ടിക്കുക", login: "ലോഗിൻ", wallet: "ബാലൻസ്", addMoney: "പണം ചേർക്കുക", loanEl: "വായ്പാ യോഗ്യത", logActivity: "പ്രവർത്തനം", education: "വിദ്യാഭ്യാസം", logout: "ലോഗൗട്ട്", profile: "എന്റെ പ്രൊഫൈൽ", success: "വിജയം!" }
+  Kannada: { welcome: "ನಿಧಿಸಹಾಯ್", tagline: "ನಿಮ್ಮ ಹಣಕಾಸಿನ AI ಏಜೆಂಟ್", createAccount: "ಹೊಸ ಕಾತೆಯನ್ನು ರಚಿಸಿ", login: "ಲಾಗಿನ್", wallet: "ವ್ಯಾಲೆಟ್ ಬ್ಯಾಲೆನ್ಸ್", addMoney: "ಹಣ ಸೇರಿಸಿ", loanEl: "ಸಾಲದ ಅರ್ಹತೆ", logActivity: "ಚಟುವಟಿಕೆ", education: "ಶಿಕ್ಷಣ", logout: "ಲಾಗ್ಔಟ್", profile: "ನನ್ನ ಪ್ರೊಫೈಲ್", success: "ಯಶಸ್ವಿ!" },
+  Tamil: { welcome: "நிதிசஹாய்", tagline: "உங்கள் நிதி AI முகவர்", createAccount: "புதிய கணக்கை உருவாக்கவும்", login: "உள்நுழை", wallet: "இருப்பு", addMoney: "பணம் சேர்க்க", loanEl: "கடன் தகுதி", logActivity: "செயல்பாடு", education: "கல்வி", logout: "வெளியேறு", profile: "எனது சுயவிவரம்", success: "வெற்றி!" },
+  Malayalam: { welcome: "നിധിസഹായ്", tagline: "നിങ്ങളുടെ സാമ്പത്തിക AI ഏജന്റ്", createAccount: "പുതിയ അക്കൗണ്ട് സൃഷ്ടിക്കുക", login: "ലോഗിൻ", wallet: "ബാലൻസ്", addMoney: "പണം ചേർക്കുക", loanEl: "വായ്പാ യോഗ്യത", logActivity: "പ്രവർത്തനം", education: "വിദ്യാഭ്യാസം", logout: "ലോഗൗട്ട്", profile: "എന്റെ പ്രൊഫൈൽ", success: "വിജയം!" }
 };
 
 const getTranslation = (lang: Language, key: string): string => {
   const dict = TRANSLATIONS[lang] || TRANSLATIONS.English;
   return dict[key] || TRANSLATIONS.English[key] || key;
-};
-
-// --- TTS Helper ---
-const playVoice = async (text: string, lang: Language) => {
-  try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    const voicePrompt = `IMPORTANT: Speak the following text clearly and naturally as a human in ${lang}: ${text}`;
-    
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-tts",
-      contents: [{ parts: [{ text: voicePrompt }] }],
-      config: {
-        responseModalities: [Modality.AUDIO],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: lang === 'English' ? 'Kore' : 'Puck' },
-          },
-        },
-      },
-    });
-
-    const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    if (base64Audio) {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
-      
-      const decode = (base64: string) => {
-        const binaryString = atob(base64);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        return bytes;
-      };
-
-      const decodeAudioData = async (data: Uint8Array, ctx: AudioContext, sampleRate: number, numChannels: number) => {
-        const dataInt16 = new Int16Array(data.buffer);
-        const frameCount = dataInt16.length / numChannels;
-        const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
-        for (let channel = 0; channel < numChannels; channel++) {
-          const channelData = buffer.getChannelData(channel);
-          for (let i = 0; i < frameCount; i++) {
-            channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
-          }
-        }
-        return buffer;
-      };
-
-      const audioBuffer = await decodeAudioData(decode(base64Audio), audioContext, 24000, 1);
-      const source = audioContext.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(audioContext.destination);
-      source.start();
-    }
-  } catch (err) {
-    console.error("Voice output failed:", err);
-  }
 };
 
 // --- DB Logic (Supabase Calls) ---
@@ -237,7 +180,7 @@ const FormattedText = ({ text }: { text: string }) => {
   );
 };
 
-// --- Auth Components ---
+// --- Auth Screen Component ---
 const AuthScreen = ({ onLogin }: { onLogin: (user: any) => void }) => {
   const [mode, setMode] = useState<'landing' | 'signup' | 'login' | 'mpin' | 'confirm_mpin'>('landing');
   const [formData, setFormData] = useState({ name: '', mobile: '', mpin: '', confirmMpin: '', countryCode: '+91', consent: false });
@@ -336,7 +279,7 @@ const AuthScreen = ({ onLogin }: { onLogin: (user: any) => void }) => {
   );
 };
 
-// --- Main Screens ---
+// --- Main Dashboard Component ---
 const Dashboard = ({ user, language, onSelectFeature, balances }: any) => {
   return (
     <div className="space-y-6 pb-6 animate-in fade-in">
@@ -357,7 +300,7 @@ const Dashboard = ({ user, language, onSelectFeature, balances }: any) => {
           <h3 className="text-lg font-black mb-1">Talk to Nidhi AI</h3>
           <p className="text-xs text-indigo-200 font-medium">Finance assistance in {language}</p>
         </div>
-        <button onClick={() => onSelectFeature('ai_chat')} className="w-full bg-white text-indigo-900 font-black py-4 rounded-xl shadow-lg">Start Conversation</button>
+        <button onClick={() => onSelectFeature('ai_chat')} className="w-full bg-white text-indigo-900 font-black py-4 rounded-xl shadow-lg transition hover:bg-indigo-50 active:scale-95">Start Conversation</button>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -382,49 +325,13 @@ const Dashboard = ({ user, language, onSelectFeature, balances }: any) => {
   );
 };
 
-// --- Loan Flow Specification ---
-const LOAN_QUESTIONS = [
-  {
-    category: "KYC",
-    question: "Can you provide the PAN and Aadhaar details for all promoters, partners, or directors involved in the business?",
-    expectedFormat: "Yes/No, details follow",
-  },
-  {
-    category: "KYC",
-    question: "Are the KYC documents for all stakeholders updated and linked to their current mobile numbers?",
-    expectedFormat: "Yes/No",
-  },
-  {
-    category: "Business Proof",
-    question: "Is your business GST-registered, and are your filings up to date for the current financial year?",
-    expectedFormat: "Yes/No",
-  },
-  {
-    category: "Business Proof",
-    question: "Do you have a valid Trade License or Certificate of Incorporation for this specific entity?",
-    expectedFormat: "Yes/No",
-  },
-  {
-    category: "Bank Statements",
-    question: "Which bank holds your primary current account, and can you provide statements for the last 12 months?",
-    expectedFormat: "Bank Name, Statement availability",
-  },
-  {
-    category: "Bank Statements",
-    question: "Does your bank statement reflect high-value transactions that align with your reported turnover?",
-    expectedFormat: "Yes/No",
-  },
-  {
-    category: "Income Proof (ITR)",
-    question: "Have you consistently filed your Income Tax Returns (ITR) for the last three assessment years?",
-    expectedFormat: "Yes/No, number of years",
-  },
-  {
-    category: "Income Proof (ITR)",
-    question: "What is the 'Net Taxable Income' shown in your latest ITR compared to your previous year's filing?",
-    expectedFormat: "Growth/Decline, percentage or brief details",
-  }
-];
+// --- Agent Journey Types ---
+interface LoanProfile {
+  business_type: string;
+  udyam_registered: string;
+  transaction_method: string;
+  has_business_pan: string;
+}
 
 const FeatureScreen = ({ type, user, language, onClose }: any) => {
   const [view, setView] = useState('main');
@@ -434,13 +341,17 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [loanJourneyIndex, setLoanJourneyIndex] = useState(-1);
+  const [loanStep, setLoanStep] = useState(0);
   const [educationVideos, setEducationVideos] = useState<any[]>([]);
+  const [loanProfile, setLoanProfile] = useState<Partial<LoanProfile>>({});
   const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     if (type === 'loan_eligibility') {
-      startLoanFlow();
+      const initialAgentBox = language === 'English' 
+        ? "I can help with that! To find the best loan for you, I need to ask a few quick questions to build your profile. First, what type of business do you run?"
+        : "मैं इसमें मदद कर सकता हूँ! आपके लिए सबसे अच्छा लोन खोजने के लिए, मुझे आपका प्रोफ़ाइल बनाने के लिए कुछ त्वरित प्रश्न पूछने की आवश्यकता है। सबसे पहले, आप किस प्रकार का व्यवसाय चलाते हैं?";
+      setChatLog([{ role: 'assistant', content: initialAgentBox }]);
     } else if (type === 'education') {
       loadEducationRecommendations();
     }
@@ -448,170 +359,202 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
       recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
-      const langMap: Record<string, string> = {
-        'English': 'en-US', 'Hindi': 'hi-IN', 'Marathi': 'mr-IN', 'Telugu': 'te-IN',
-        'Kannada': 'kn-IN', 'Tamil': 'ta-IN', 'Malayalam': 'ml-IN', 'Punjabi': 'pa-IN'
-      };
-      recognitionRef.current.lang = langMap[language] || 'en-US';
-      recognitionRef.current.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        if (transcript) handleSend(transcript);
-      };
+      recognitionRef.current.lang = language === 'Hindi' ? 'hi-IN' : 'en-US';
+      recognitionRef.current.onresult = (e: any) => handleSend(e.results[0][0].transcript);
       recognitionRef.current.onstart = () => setIsListening(true);
       recognitionRef.current.onend = () => setIsListening(false);
     }
-    return () => recognitionRef.current?.stop();
   }, [type, language]);
 
   const toggleListening = () => isListening ? recognitionRef.current?.stop() : recognitionRef.current?.start();
 
-  const startLoanFlow = async () => {
-    setIsTyping(true);
-    const firstQ = LOAN_QUESTIONS[0];
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    const prompt = `Translate this Loan Officer question into natural ${language}: "${firstQ.question}". 
-    Add a polite greeting like "Hello, I am your Loan Officer. Let's check your eligibility."
-    Make the question very direct and clear so the user knows exactly what to answer (e.g., provide hints like "Yes/No").`;
-    
-    const resp = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: [{ parts: [{ text: prompt }] }]
-    });
-    
-    setChatLog([{ role: 'assistant', content: resp.text || firstQ.question }]);
-    setLoanJourneyIndex(0);
-    setIsTyping(false);
-  };
-
-  const handleLoanJourneyStep = async (userMsg: string) => {
+  const handleLoanFlow = async (msg: string) => {
+    if (isTyping) return;
     setIsTyping(true);
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    const nextIndex = loanJourneyIndex + 1;
+    let nextMsg = "";
+    
+    try {
+      if (loanStep === 0) {
+        // Step 0: User answers Business Type -> Agent asks Udyam
+        setLoanProfile(prev => ({ ...prev, business_type: msg }));
+        const resp = await ai.models.generateContent({
+          model: 'gemini-3-flash-preview',
+          contents: [{ parts: [{ text: `The user runs a "${msg}" business. As a Borrower Agentic AI, politely ask them if they are Udyam Registered in ${language}. Use clear, professional language.` }] }]
+        });
+        nextMsg = resp.text || (language === 'English' ? "Are you Udyam Registered?" : "क्या आप उद्यम पंजीकृत हैं?");
+        setLoanStep(1);
+      } else if (loanStep === 1) {
+        // Step 1: User answers Udyam -> Agent asks PAN
+        setLoanProfile(prev => ({ ...prev, udyam_registered: msg }));
+        const resp = await ai.models.generateContent({
+          model: 'gemini-3-flash-preview',
+          contents: [{ parts: [{ text: `User Udyam status: "${msg}". As a Borrower Agentic AI, politely ask if they have a Business PAN card in ${language}.` }] }]
+        });
+        nextMsg = resp.text || (language === 'English' ? "Do you have a Business PAN card?" : "क्या आपके पास बिज़नेस पैन कार्ड है?");
+        setLoanStep(2);
+      } else if (loanStep === 2) {
+        // Step 2: User answers PAN -> Agent asks Transaction Method
+        setLoanProfile(prev => ({ ...prev, has_business_pan: msg }));
+        const resp = await ai.models.generateContent({
+          model: 'gemini-3-flash-preview',
+          contents: [{ parts: [{ text: `User PAN status: "${msg}". As a Borrower Agentic AI, ask if their primary transaction method is Bank or Cash in ${language}.` }] }]
+        });
+        nextMsg = resp.text || (language === 'English' ? "Do you primarily transact via Bank or Cash?" : "क्या आप मुख्य रूप से बैंक या नकद के माध्यम से लेनदेन करते हैं?");
+        setLoanStep(3);
+      } else if (loanStep === 3) {
+        // Step 3: User answers Transaction -> Agent: "Analyzing... Based on profile, eligible for: [List]. Which would you like to know more about?"
+        setLoanProfile(prev => ({ ...prev, transaction_method: msg }));
+        const prompt = `User Profile: ${JSON.stringify(loanProfile)}. 
+        As a Borrower Agentic AI in ${language}, do the following:
+        1. Say: "Thank you. I'm analyzing your profile against available loan schemes...".
+        2. Say: "Based on your profile, you are eligible for these schemes:".
+        3. List schemes like MUDRA Loan, PM SVANidhi, and CGTMSE.
+        4. Ask: "Which scheme would you like to know more about?".
+        Use Markdown for the list.`;
+        
+        const resp = await ai.models.generateContent({
+          model: 'gemini-3-flash-preview',
+          contents: [{ parts: [{ text: prompt }] }]
+        });
+        nextMsg = resp.text || (language === 'English' ? "Thank you. I'm analyzing your profile... Based on your profile, you are eligible for MUDRA Loan and PM SVANidhi. Which would you like to know more about?" : "धन्यवाद। मैं उपलब्ध ऋण योजनाओं के विरुद्ध आपकी प्रोफ़ाइल का विश्लेषण कर रहा हूँ... आपकी प्रोफ़ाइल के आधार पर, आप मुद्रा ऋण और पीएम स्वनिधि के लिए पात्र हैं। आप किसके बारे में अधिक जानना चाहेंगे?");
+        setLoanStep(4);
+      } else if (loanStep === 4) {
+        // Step 4: User selects scheme -> Agent displays details + "Would you like me to guide you through next steps?"
+        const prompt = `The user selected: "${msg}". 
+        As a Borrower Agentic AI in ${language}:
+        1. Say: "Great choice! Here are the details for [Scheme Name]:".
+        2. Provide Details: Terms (e.g. Low interest, up to 10 Lakhs), Eligibility (Small businesses), Portal (e.g. janasamarth.in or pmsvanidhi.mohua.gov.in with links).
+        3. Ask: "Would you like me to guide you through the next steps to apply?".
+        Use professional tone and Markdown.`;
 
-    let assistantResponse = "";
+        const resp = await ai.models.generateContent({
+          model: 'gemini-3-flash-preview',
+          contents: [{ parts: [{ text: prompt }] }]
+        });
+        nextMsg = resp.text || (language === 'English' ? "Here are the details... Would you like me to guide you through the next steps?" : "यहाँ विवरण हैं... क्या आप चाहेंगे कि मैं आपको आवेदन करने के अगले चरणों के बारे में मार्गदर्शन करूँ?");
+        setLoanStep(5);
+      } else if (loanStep === 5) {
+        // Step 5: User Responds "Yes" or "No" -> Agent provides steps or farewell
+        const isYes = msg.toLowerCase().includes('yes') || msg.toLowerCase().includes('हाँ') || msg.toLowerCase().includes('guide') || msg.toLowerCase().includes('ok');
+        if (isYes) {
+          const prompt = `The user said YES to guidance in ${language}. 
+          As a Borrower Agentic AI:
+          1. Provide Step-by-Step guide: 
+             - Visit the official portal link.
+             - Click 'Apply Now'.
+             - "I can help you pre-fill your application using the information you've given me."
+          Use natural and helpful tone in ${language}.`;
+          const resp = await ai.models.generateContent({
+            model: 'gemini-3-flash-preview',
+            contents: [{ parts: [{ text: prompt }] }]
+          });
+          nextMsg = resp.text || (language === 'English' ? "Here is Step 1: Visit the portal... I can help you pre-fill your application!" : "यहाँ चरण 1 है: पोर्टल पर जाएँ... मैं आपके द्वारा दी गई जानकारी का उपयोग करके आपके आवेदन को प्री-फिल करने में आपकी मदद कर सकता हूँ!");
+        } else {
+          nextMsg = language === 'English' ? "No problem. I'm here if you change your mind!" : "कोई बात नहीं। अगर आप अपना मन बदलते हैं तो मैं यहाँ हूँ!";
+        }
+        setLoanStep(-1); // End journey
+      }
 
-    if (nextIndex < LOAN_QUESTIONS.length) {
-      const nextQ = LOAN_QUESTIONS[nextIndex];
-      const nextPrompt = `Politely acknowledge the previous response in ${language}, then ask the next Loan Officer question clearly in ${language}: "${nextQ.question}".
-      The question should be asked in a way where the user knows exactly what to answer (Expected format: ${nextQ.expectedFormat}).
-      Do NOT provide any suggestions or feedback, ONLY ask the question.`;
-      
-      const nextResp = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: [{ parts: [{ text: nextPrompt }] }]
-      });
-      assistantResponse = nextResp.text || nextQ.question;
-      setLoanJourneyIndex(nextIndex);
-    } else {
-      // End of flow: Recommend Schemes
-      const summaryPrompt = `Based on a completed loan eligibility interview, recommend 2 relevant Government Loan Schemes (e.g., PM SVANidhi, Mudra).
-      For each scheme, provide:
-      1. Scheme Name
-      2. Key Benefit
-      3. A direct application link in a button format (e.g., Apply Now [URL]).
-      Official links: PM SVANidhi (https://pmsvanidhi.mohua.gov.in/), MUDRA (https://www.mudra.org.in/).
-      Respond strictly in ${language} using Markdown.`;
-      
-      const summaryResp = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: [{ parts: [{ text: summaryPrompt }] }]
-      });
-      assistantResponse = summaryResp.text || "You have completed the assessment. Visit PM SVANidhi for next steps.";
-      setLoanJourneyIndex(-1);
+      setChatLog(prev => [...prev, { role: 'assistant', content: nextMsg }]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsTyping(false);
     }
-
-    setChatLog(prev => [...prev, { role: 'assistant', content: assistantResponse }]);
-    setIsTyping(false);
   };
 
   const handleSend = async (msg: string = inputText) => {
-    if (!msg.trim()) return;
+    if (!msg.trim() || isTyping) return;
     setChatLog(prev => [...prev, { role: 'user', content: msg }]);
     setInputText('');
+    
     if (type === 'loan_eligibility') {
-      handleLoanJourneyStep(msg);
+      await handleLoanFlow(msg);
       return;
     }
+    
     setIsTyping(true);
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       if (type === 'log_activity') {
-        const prompt = `Parse transaction: "${msg}". Respond JSON: { "amount": <number>, "type": "income" | "expense", "category": "<string>", "description": "<string>" }. User Language: ${language}.`;
-        const resp = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: [{ parts: [{ text: prompt }] }], config: { responseMimeType: "application/json" } });
+        const resp = await ai.models.generateContent({
+          model: 'gemini-3-flash-preview',
+          contents: [{ parts: [{ text: `Parse this transaction: "${msg}". Return JSON {amount: number, type: "income"|"expense"}. Use strictly ${language} context.` }] }],
+          config: { responseMimeType: "application/json" }
+        });
         const parsed = JSON.parse(resp.text || '{}');
         if (parsed.amount) {
           await DB.addMoneyLog(user.mobile, parsed);
-          const newBal = await DB.getLoggedBalance(user.mobile);
-          const voicePrompt = `Confirm logging ${parsed.amount} as ${parsed.type} in ${language}. Total is ${newBal}.`;
-          const voiceRes = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: [{ parts: [{ text: voicePrompt }] }] });
-          playVoice(voiceRes.text || `Logged ${parsed.amount}.`, language);
-          setChatLog(prev => [...prev, { role: 'assistant', content: voiceRes.text || `Logged ₹${parsed.amount}.` }]);
-        } else {
-          setChatLog(prev => [...prev, { role: 'assistant', content: "Identify amount error." }]);
+          const confirmMsg = language === 'English' ? `Logged ₹${parsed.amount} as ${parsed.type}.` : `₹${parsed.amount} को ${parsed.type} के रूप में दर्ज किया गया।`;
+          setChatLog(prev => [...prev, { role: 'assistant', content: confirmMsg }]);
         }
       } else {
-        const resp = await ai.models.generateContent({ 
-          model: 'gemini-3-flash-preview', 
-          contents: [{ parts: [{ text: msg }] }], 
-          config: { systemInstruction: `You are Nidhi Assistant. Speak ONLY in ${language}.` } 
+        const resp = await ai.models.generateContent({
+          model: 'gemini-3-flash-preview',
+          contents: [{ parts: [{ text: msg }] }],
+          config: { systemInstruction: `You are Nidhi Assistant, a helpful financial aid for MSMEs. Speak strictly in ${language}. Maintain a professional and reassuring tone.` }
         });
         setChatLog(prev => [...prev, { role: 'assistant', content: resp.text }]);
-        playVoice(resp.text || "...", language);
       }
-    } catch (e) { console.error(e); } finally { setIsTyping(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const loadEducationRecommendations = async () => {
     setIsTyping(true);
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Recommend 3 specific growth videos for MSMEs in ${language}. Respond JSON: [{ "id": "youtube_id", "title": "...", "description": "..." }]`;
-      const resp = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: [{ parts: [{ text: prompt }] }], config: { responseMimeType: "application/json" } });
+      const resp = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: [{ parts: [{ text: `Recommend 3 specific growth videos for MSMEs in ${language}. Focus on business management and digital skills. JSON: [{id: "youtube_id", title: "...", description: "..."}]` }] }],
+        config: { responseMimeType: "application/json" }
+      });
       setEducationVideos(JSON.parse(resp.text || '[]'));
-    } catch (e) { setEducationVideos([]); } finally { setIsTyping(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
+  // --- UI Views ---
   if (type === 'add_money') {
     if (view === 'main') return (
       <div className="space-y-8 py-4 animate-in slide-in-from-bottom-4">
         <header className="flex items-center gap-4 px-2">
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full"><ArrowLeft size={20}/></button>
-          <h3 className="font-black text-indigo-900">{getTranslation(language, 'addMoney')}</h3>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><ArrowLeft size={20}/></button>
+          <h3 className="font-black text-indigo-900 tracking-tight">{getTranslation(language, 'addMoney')}</h3>
         </header>
-        <div className="text-center"><p className="text-xs font-bold text-slate-400 mb-2 uppercase">Amount to Add</p><h2 className="text-6xl font-black text-indigo-900">₹{amount || '0'}</h2></div>
+        <div className="text-center"><p className="text-xs font-black text-slate-400 mb-2 uppercase tracking-widest">Amount to Add</p><h2 className="text-6xl font-black text-indigo-900">₹{amount || '0'}</h2></div>
         <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto px-4">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '✓'].map(n => (
-            <button key={n} onClick={() => { if (n === 'C') setAmount(amount.slice(0, -1)); else if (n === '✓') amount && setView('pin'); else if (amount.length < 6) setAmount(amount + n); }} className="h-16 bg-white border border-slate-100 rounded-2xl font-black text-xl shadow-sm active:bg-slate-100 transition">{n}</button>
+            <button key={n} onClick={() => { if (n === 'C') setAmount(amount.slice(0, -1)); else if (n === '✓') amount && setView('pin'); else if (amount.length < 6) setAmount(amount + n); }} className="h-16 bg-white border border-slate-100 rounded-2xl font-black text-xl shadow-sm active:bg-indigo-50 active:scale-95 transition-all">{n}</button>
           ))}
         </div>
       </div>
     );
     if (view === 'pin') return (
       <div className="fixed inset-0 bg-white z-[60] flex flex-col items-center justify-center p-8 animate-in zoom-in-95">
-        <h2 className="text-2xl font-black text-slate-800 mb-8">Enter UPI PIN</h2>
-        <div className="flex gap-4 mb-12">{[1, 2, 3, 4].map(i => <div key={i} className={`w-4 h-4 rounded-full border-2 transition-all ${pin.length >= i ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-200'}`} />)}</div>
+        <h2 className="text-2xl font-black text-slate-800 mb-8 tracking-tight">Enter UPI PIN</h2>
+        <div className="flex gap-4 mb-12">{[1, 2, 3, 4].map(i => <div key={i} className={`w-4 h-4 rounded-full border-2 transition-all duration-300 ${pin.length >= i ? 'bg-indigo-600 border-indigo-600 scale-125' : 'bg-white border-slate-200'}`} />)}</div>
         <div className="grid grid-cols-3 gap-8 w-full max-w-xs">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '✓'].map(n => (
-            <button key={n} onClick={async () => { if (n === 'C') setPin(pin.slice(0, -1)); else if (n === '✓') { if (pin.length >= 4) { 
-              await DB.addWalletTx(user.mobile, parseInt(amount)); 
-              const newBal = await DB.getWalletBalance(user.mobile);
-              const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-              const voiceRes = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: [{ parts: [{ text: `Confirm adding ${amount} to wallet in ${language}.` }] }] });
-              playVoice(voiceRes.text || `Added ${amount}.`, language);
-              setView('success'); 
-            } } else if (pin.length < 4) setPin(pin + n); }} className="h-12 font-black text-2xl active:bg-slate-50 rounded-full transition">{n}</button>
+            <button key={n} onClick={async () => { if (n === 'C') setPin(pin.slice(0, -1)); else if (n === '✓') { if (pin.length >= 4) { await DB.addWalletTx(user.mobile, parseInt(amount)); setView('success'); } } else if (pin.length < 4) setPin(pin + n); }} className="h-12 font-black text-2xl active:bg-slate-50 rounded-full transition-colors">{n}</button>
           ))}
         </div>
       </div>
     );
     if (view === 'success') return (
       <div className="fixed inset-0 bg-white z-[60] flex flex-col items-center justify-center p-8 text-center animate-in fade-in">
-        <div className="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-6 shadow-xl"><CheckCircle2 size={56} /></div>
-        <h2 className="text-3xl font-black text-slate-900 mb-2">{getTranslation(language, 'success')}</h2>
+        <div className="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-6 shadow-xl animate-bounce"><CheckCircle2 size={56} /></div>
+        <h2 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">{getTranslation(language, 'success')}</h2>
         <p className="text-slate-400 font-bold mb-8">₹{amount} added to your Nidhi Wallet.</p>
-        <button onClick={onClose} className="w-full max-w-sm bg-indigo-600 text-white font-black py-5 rounded-2xl shadow-xl">Done</button>
+        <button onClick={onClose} className="w-full max-w-sm bg-indigo-600 text-white font-black py-5 rounded-2xl shadow-xl transition hover:bg-indigo-700 active:scale-95">Done</button>
       </div>
     );
   }
@@ -620,18 +563,20 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
     return (
       <div className="h-full flex flex-col p-4 animate-in slide-in-from-bottom-10">
         <header className="h-16 flex items-center gap-4 mb-6">
-          <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-full transition"><ArrowLeft size={20} /></button>
-          <h3 className="font-black text-indigo-900">{getTranslation(language, 'education')}</h3>
+          <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-full transition-colors"><ArrowLeft size={20} /></button>
+          <h3 className="font-black text-indigo-900 tracking-tight">{getTranslation(language, 'education')}</h3>
         </header>
         <div className="flex-1 overflow-y-auto space-y-8 pb-10">
           <div className="grid grid-cols-1 gap-6">
             {educationVideos.map((video, idx) => (
-              <div key={idx} className="card p-4 space-y-3">
-                <div className="aspect-video w-full rounded-xl overflow-hidden bg-slate-900">
-                   <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${video.id}`} title={video.title} frameBorder="0" allowFullScreen />
+              <div key={idx} className="card p-4 space-y-4 group">
+                <div className="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 shadow-xl relative">
+                   <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${video.id}`} title={video.title} frameBorder="0" allowFullScreen className="transition-transform group-hover:scale-105 duration-500" />
                 </div>
-                <h4 className="font-black text-slate-800">{video.title}</h4>
-                <p className="text-xs text-slate-500 font-medium">{video.description}</p>
+                <div className="space-y-1">
+                  <h4 className="font-black text-slate-800 leading-tight">{video.title}</h4>
+                  <p className="text-xs text-slate-500 font-medium line-clamp-2">{video.description}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -643,8 +588,8 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col animate-in slide-in-from-bottom-10">
       <header className="h-16 border-b flex items-center px-4 gap-4 bg-white sticky top-0 z-10 shadow-sm">
-        <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-full transition"><ArrowLeft size={20} /></button>
-        <h3 className="font-black text-indigo-900">{getTranslation(language, type)}</h3>
+        <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-full transition-colors"><ArrowLeft size={20} /></button>
+        <h3 className="font-black text-indigo-900 tracking-tight">{getTranslation(language, type)}</h3>
       </header>
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/30">
         {chatLog.map((m, i) => <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-4`}><div className={`p-4 rounded-2xl max-w-[85%] text-sm font-bold shadow-sm ${m.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-100 text-slate-700'}`}><FormattedText text={m.content} /></div></div>)}
@@ -652,9 +597,9 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
       </div>
       <div className="p-4 bg-white border-t flex flex-col gap-3 shadow-2xl">
         <div className="flex gap-2">
-          <button onClick={toggleListening} className={`p-4 rounded-full transition relative ${isListening ? 'bg-rose-500 text-white animate-pulse' : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'}`}><Mic size={22} /></button>
-          <input type="text" placeholder={getTranslation(language, 'next')} className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 font-bold text-sm outline-none focus:ring-2 ring-indigo-500 transition" value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} />
-          <button onClick={() => handleSend()} className="p-4 bg-indigo-600 text-white rounded-full shadow-lg transition"><Send size={22} /></button>
+          <button onClick={toggleListening} disabled={isTyping} className={`p-4 rounded-full transition-all relative ${isListening ? 'bg-rose-500 text-white animate-pulse' : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'} ${isTyping ? 'opacity-50 cursor-not-allowed' : ''}`}><Mic size={22} /></button>
+          <input type="text" disabled={isTyping} placeholder={isTyping ? "..." : getTranslation(language, 'next')} className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 font-bold text-sm outline-none focus:ring-2 ring-indigo-500 transition-all disabled:opacity-50" value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} />
+          <button onClick={() => handleSend()} disabled={isTyping} className={`p-4 bg-indigo-600 text-white rounded-full shadow-lg transition-all hover:bg-indigo-700 active:scale-95 disabled:opacity-50`}><Send size={22} /></button>
         </div>
       </div>
     </div>
@@ -665,14 +610,14 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
 const ProfileScreen = ({ user, language, onBack, onLogout, onForgetMe }: any) => {
   return (
     <div className="space-y-6 animate-in fade-in pb-20">
-      <header className="flex items-center gap-4"><button onClick={onBack} className="p-2 hover:bg-white rounded-full"><ArrowLeft size={20} /></button><h2 className="text-xl font-black text-indigo-900">{getTranslation(language, 'profile')}</h2></header>
+      <header className="flex items-center gap-4"><button onClick={onBack} className="p-2 hover:bg-white rounded-full transition-colors"><ArrowLeft size={20} /></button><h2 className="text-xl font-black text-indigo-900 tracking-tight">{getTranslation(language, 'profile')}</h2></header>
       <div className="card p-6 flex items-center gap-6">
-        <div className="w-16 h-16 bg-indigo-100 rounded-3xl flex items-center justify-center text-indigo-600 shadow-inner"><User size={32} /></div>
-        <div><h3 className="text-lg font-black text-slate-800">{user.name}</h3><p className="text-sm text-slate-500 font-bold">{user.mobile}</p></div>
+        <div className="w-20 h-20 bg-indigo-100 rounded-3xl flex items-center justify-center text-indigo-600 shadow-inner"><User size={40} /></div>
+        <div><h3 className="text-xl font-black text-slate-800">{user.name}</h3><p className="text-sm text-slate-500 font-bold">{user.mobile}</p></div>
       </div>
       <div className="grid grid-cols-1 gap-3">
-        <button onClick={onLogout} className="w-full flex items-center justify-center gap-3 p-5 bg-white border border-slate-200 rounded-3xl text-slate-700 font-black shadow-sm transition hover:bg-slate-50"><LogOut size={20} className="text-indigo-600" /><span>{getTranslation(language, 'logout')}</span></button>
-        <button onClick={onForgetMe} className="w-full flex items-center justify-center gap-3 p-5 bg-rose-50 text-rose-600 rounded-3xl font-black shadow-sm transition border border-rose-100 hover:bg-rose-100"><Trash2 size={20} /><span>{getTranslation(language, 'forgetMe')}</span></button>
+        <button onClick={onLogout} className="w-full flex items-center justify-center gap-3 p-5 bg-white border border-slate-200 rounded-3xl text-slate-700 font-black shadow-sm transition hover:bg-slate-50 active:scale-95"><LogOut size={20} className="text-indigo-600" /><span>{getTranslation(language, 'logout')}</span></button>
+        <button onClick={onForgetMe} className="w-full flex items-center justify-center gap-3 p-5 bg-rose-50 text-rose-600 rounded-3xl font-black shadow-sm transition border border-rose-100 hover:bg-rose-100 active:scale-95"><Trash2 size={20} /><span>{getTranslation(language, 'forgetMe')}</span></button>
       </div>
     </div>
   );
@@ -726,21 +671,23 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20">
-      <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-4 z-50">
-        <div className="flex items-center gap-2"><div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black">NS</div><span className="font-black text-xl text-indigo-900">NidhiSahay</span></div>
-        <div className="flex items-center gap-3"><button onClick={() => setSubScreen('add_money')} className="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full font-black text-xs">₹{balances.wallet}</button><button onClick={() => setIsMenuOpen(true)} className="p-2"><Menu size={24} /></button></div>
+      <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-4 z-50 shadow-sm">
+        <div className="flex items-center gap-2"><div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-lg">NS</div><span className="font-black text-xl text-indigo-900 tracking-tighter uppercase">NidhiSahay</span></div>
+        <div className="flex items-center gap-3"><button onClick={() => setSubScreen('add_money')} className="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full font-black text-xs border border-indigo-100 transition-colors hover:bg-indigo-100">₹{balances.wallet}</button><button onClick={() => setIsMenuOpen(true)} className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors"><Menu size={24} /></button></div>
       </header>
 
       {isMenuOpen && (
-        <div className="fixed inset-0 bg-black/20 z-[100]" onClick={() => setIsMenuOpen(false)}>
-          <div className="absolute top-0 right-0 w-80 h-full bg-white p-8 animate-in slide-in-from-right" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center mb-10"><h2 className="text-2xl font-black">Settings</h2><button onClick={() => setIsMenuOpen(false)}><X /></button></div>
-            <div className="space-y-4">
-              <p className="text-xs font-black text-slate-400 uppercase">Language</p>
-              <div className="grid grid-cols-2 gap-2">
-                {LANGUAGES.map(l => (
-                  <button key={l} onClick={async () => { setLanguage(l); setIsMenuOpen(false); if(user) await DB.updateProfile(user.mobile, { language: l }); }} className={`p-3 rounded-2xl text-[10px] font-black border ${language === l ? 'bg-indigo-600 text-white' : 'bg-white'}`}>{l}</button>
-                ))}
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[100] transition-opacity duration-300" onClick={() => setIsMenuOpen(false)}>
+          <div className="absolute top-0 right-0 w-80 h-full bg-white p-8 animate-in slide-in-from-right shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-10"><h2 className="text-2xl font-black tracking-tighter uppercase">Settings</h2><button onClick={() => setIsMenuOpen(false)} className="p-2 hover:bg-slate-50 rounded-full transition-all"><X /></button></div>
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Language</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {LANGUAGES.map(l => (
+                    <button key={l} onClick={async () => { setLanguage(l); setIsMenuOpen(false); if(user) await DB.updateProfile(user.mobile, { language: l }); }} className={`p-3 rounded-2xl text-[10px] font-black border transition-all duration-200 ${language === l ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg scale-105' : 'bg-white border-slate-100 text-slate-600 hover:bg-slate-50 hover:border-slate-200'}`}>{l}</button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -753,10 +700,10 @@ const App = () => {
         {screen === 'profile' && <ProfileScreen user={user} language={language} onBack={() => setScreen('home')} onLogout={handleLogout} onForgetMe={handleForgetMe} />}
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t flex items-center justify-around px-4 z-40">
-        <button onClick={() => { setScreen('home'); setSubScreen(null); }} className={`flex flex-col items-center gap-1 ${screen === 'home' && !subScreen ? 'text-indigo-600' : 'text-slate-400'}`}><BarChart3 size={22} /><span className="text-[10px] font-black">HOME</span></button>
-        <button onClick={() => setSubScreen('ai_chat')} className="p-3 -mt-8 bg-indigo-600 text-white rounded-full shadow-lg"><Mic size={24}/></button>
-        <button onClick={() => setScreen('profile')} className={`flex flex-col items-center gap-1 ${screen === 'profile' ? 'text-indigo-600' : 'text-slate-400'}`}><User size={22} /><span className="text-[10px] font-black">PROFILE</span></button>
+      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-md border-t flex items-center justify-around px-4 z-40 shadow-[0_-1px_10px_rgba(0,0,0,0.05)]">
+        <button onClick={() => { setScreen('home'); setSubScreen(null); }} className={`flex flex-col items-center gap-1 transition-all duration-300 ${screen === 'home' && !subScreen ? 'text-indigo-600 scale-110 font-black' : 'text-slate-400'}`}><BarChart3 size={22} /><span className="text-[10px] font-black uppercase tracking-tight">HOME</span></button>
+        <button onClick={() => setSubScreen('ai_chat')} className="p-3 -mt-10 bg-indigo-600 text-white rounded-full shadow-2xl transition-all duration-300 hover:bg-indigo-700 active:scale-90 ring-4 ring-white"><Mic size={24}/></button>
+        <button onClick={() => setScreen('profile')} className={`flex flex-col items-center gap-1 transition-all duration-300 ${screen === 'profile' ? 'text-indigo-600 scale-110 font-black' : 'text-slate-400'}`}><User size={22} /><span className="text-[10px] font-black uppercase tracking-tight">PROFILE</span></button>
       </nav>
     </div>
   );
