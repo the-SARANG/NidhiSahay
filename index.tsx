@@ -30,7 +30,7 @@ import {
   Info,
   ExternalLink
 } from 'lucide-react';
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { createClient } from "@supabase/supabase-js";
 
 // --- Supabase Configuration ---
@@ -62,13 +62,75 @@ const TRANSLATIONS: Record<Language, any> = {
     uploadDoc: "Upload Documents", enterPin: "Enter PIN", confirmDelete: "Erase All Data",
     forgetConfirm: "Are you sure? This will permanently delete your profile and all transaction history from our servers."
   },
-  Hindi: { welcome: "निधिसहाय", tagline: "आपका वित्तीय एआई एजेंट", createAccount: "नया खाता बनाएं", login: "लॉगिन" },
-  Marathi: {}, Punjabi: {}, Telugu: {}, Kannada: {}, Tamil: {}, Malayalam: {}
+  Hindi: { welcome: "निधिसहाय", tagline: "आपका वित्तीय एआई एजेंट", createAccount: "नया खाता बनाएं", login: "लॉगिन", wallet: "वॉलेट बैलेंस", addMoney: "पैसे जोड़ें", loanEl: "ऋण पात्रता", logActivity: "गतिविधि दर्ज करें", education: "शिक्षा", profile: "मेरी प्रोफाइल", logout: "लॉगआउट", forgetMe: "मुझे भूल जाओ", success: "सफल!" },
+  Marathi: { welcome: "निधिसहाय", tagline: "तुमचा आर्थिक AI एजंट", createAccount: "नवीन खाते उघडा", login: "लॉगिन", wallet: "वॉलेट शिल्लक", addMoney: "पैसे जोडा", loanEl: "कर्ज पात्रता", logActivity: "व्यवहार नोंदवा", education: "शिक्षण", profile: "माझी प्रोफाइल", logout: "लॉगआउट", forgetMe: "माझी माहिती पुसा", success: "यशस्वी!" },
+  Punjabi: { welcome: "ਨਿਧੀਸਹਾਇ", tagline: "ਤੁਹਾਡਾ ਵਿੱਤੀ AI ਏਜੰਟ", createAccount: "ਨਵਾਂ ਖਾਤਾ ਬਣਾਓ", login: "ਲੌਗਇਨ", wallet: "ਬਕਾਇਆ", addMoney: "ਪੈਸੇ ਜੋੜੋ", loanEl: "ਕਰਜ਼ੇ ਦੀ ਪਾਤਰਤਾ", logActivity: "ਗਤੀਵਿਧੀ", education: "ਸਿੱਖਿਆ", logout: "ਲੌਗਆਉਟ", profile: "ਮੇਰੀ ਪ੍ਰੋਫਾਈਲ", success: "ਸਫਲ!" },
+  Telugu: { welcome: "నిధిసహాయ్", tagline: "మీ ఆర్థిక AI ఏజెంట్", createAccount: "కొత్త ఖాతాను సృష్టించండి", login: "లాగిన్", wallet: "వాలెట్ బ్యాలెన్స్", addMoney: "డబ్బు జోడించండి", loanEl: "రుణ అర్హత", logActivity: "కార్యాచరణ", education: "విద్య", logout: "లాగ్అవుట్", profile: "నా ప్రొఫైల్", success: "విజయం!" },
+  Kannada: { welcome: "ನಿಧಿಸಹಾಯ್", tagline: "ನಿಮ್ಮ ಹಣಕาสಿನ AI ಏಜೆಂಟ್", createAccount: "ಹೊಸ ಖಾತೆಯನ್ನು ರಚಿಸಿ", login: "ಲಾಗಿನ್", wallet: "ವ್ಯಾಲೆಟ್ ಬ್ಯಾಲೆನ್ಸ್", addMoney: "ಹಣ ಸೇರಿಸಿ", loanEl: "ಸಾಲದ ಅರ್ಹತೆ", logActivity: "ಚಟುವಟಿಕೆ", education: "ಶಿಕ್ಷಣ", logout: "ಲಾಗ್ಔಟ್", profile: "ನನ್ನ ಪ್ರೊಫೈಲ್", success: "ಯಶಸ್ವಿ!" },
+  Tamil: { welcome: "நிதிசஹாய்", tagline: "உங்கள் நிதி AI முகவர்", createAccount: "புதிய கணக்கை உருவாக்கவும்", login: "உள்நுழை", wallet: "இருப்பு", addMoney: "பணம் சேர்க்க", loanEl: "கடன் தகுதி", logActivity: "செயல்பாடு", education: "கல்வி", logout: "வெளியேறு", profile: "எனது சுயవిவரம்", success: "வெற்றி!" },
+  Malayalam: { welcome: "ನಿಧಿಸഹಾಯ್", tagline: "നിങ്ങളുടെ സാമ്പത്തിക AI ഏജന്റ്", createAccount: "പുതിയ അക്കൗണ്ട് സൃഷ്ടിക്കുക", login: "ലോഗിൻ", wallet: "ബാലൻസ്", addMoney: "പണം ചേർക്കുക", loanEl: "വായ്പാ യോഗ്യത", logActivity: "പ്രവർത്തനം", education: "വിദ്യാഭ്യാസം", logout: "ലോഗൗട്ട്", profile: "എന്റെ പ്രൊഫൈൽ", success: "വിജയം!" }
 };
 
 const getTranslation = (lang: Language, key: string): string => {
   const dict = TRANSLATIONS[lang] || TRANSLATIONS.English;
   return dict[key] || TRANSLATIONS.English[key] || key;
+};
+
+// --- TTS Helper ---
+const playVoice = async (text: string, lang: Language) => {
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const voicePrompt = `IMPORTANT: Speak the following text clearly and naturally as a human in ${lang}: ${text}`;
+    
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-preview-tts",
+      contents: [{ parts: [{ text: voicePrompt }] }],
+      config: {
+        responseModalities: [Modality.AUDIO],
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: { voiceName: lang === 'English' ? 'Kore' : 'Puck' },
+          },
+        },
+      },
+    });
+
+    const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    if (base64Audio) {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+      
+      const decode = (base64: string) => {
+        const binaryString = atob(base64);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes;
+      };
+
+      const decodeAudioData = async (data: Uint8Array, ctx: AudioContext, sampleRate: number, numChannels: number) => {
+        const dataInt16 = new Int16Array(data.buffer);
+        const frameCount = dataInt16.length / numChannels;
+        const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
+        for (let channel = 0; channel < numChannels; channel++) {
+          const channelData = buffer.getChannelData(channel);
+          for (let i = 0; i < frameCount; i++) {
+            channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
+          }
+        }
+        return buffer;
+      };
+
+      const audioBuffer = await decodeAudioData(decode(base64Audio), audioContext, 24000, 1);
+      const source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioContext.destination);
+      source.start();
+    }
+  } catch (err) {
+    console.error("Voice output failed:", err);
+  }
 };
 
 // --- DB Logic (Supabase Calls) ---
@@ -103,36 +165,7 @@ const DB = {
     return (data || []).reduce((acc, t) => t.type === 'credit' ? acc + t.amount : acc - t.amount, 0);
   },
   async addWalletTx(mobile: string, amount: number) {
-    const now = new Date();
-    const todayStart = new Date(now.setHours(0, 0, 0, 0)).toISOString();
-    const todayEnd = new Date(now.setHours(23, 59, 59, 999)).toISOString();
-
-    // 1. Record the actual transaction
     await supabase.from('wallet_transactions').insert([{ profile_mobile: mobile, amount, type: 'credit', date: new Date().toISOString() }]);
-
-    // 2. Daily target logic
-    const profile = await this.getProfile(mobile);
-    if (profile) {
-      const { data: txsToday } = await supabase.from('wallet_transactions')
-        .select('amount')
-        .eq('profile_mobile', mobile)
-        .eq('type', 'credit')
-        .gte('date', todayStart)
-        .lte('date', todayEnd);
-
-      const totalSavedToday = (txsToday || []).reduce((sum, tx) => sum + tx.amount, 0);
-
-      if (totalSavedToday >= profile.target) {
-        // Log in daily_targets_met table. This table is used for streak and analytical tracking.
-        // The check resets daily because we query by CURRENT_DATE or equivalent.
-        await supabase.from('daily_targets_met').upsert({
-          profile_mobile: mobile,
-          date: new Date().toISOString().split('T')[0],
-          amount_saved: totalSavedToday,
-          target_amount: profile.target
-        }, { onConflict: 'profile_mobile,date' });
-      }
-    }
   },
   async getLoggedBalance(mobile: string) {
     const { data } = await supabase.from('money_logs').select('amount, type').eq('profile_mobile', mobile);
@@ -148,7 +181,7 @@ const DB = {
       udyam_registered: loanData.udyam_registered,
       transaction_method: loanData.transaction_method,
       has_business_pan: loanData.has_business_pan,
-      miscellaneous: { interactions } // Store full journey for analytics
+      miscellaneous: { interactions }
     }]);
   },
   async clearUserData(mobile: string) {
@@ -159,21 +192,49 @@ const DB = {
 // --- AI Components ---
 const FormattedText = ({ text }: { text: string }) => {
   const lines = text.split('\n');
-  return <div className="space-y-1">{lines.map((l, i) => {
-    if (l.includes('**')) {
-      const parts = l.split(/(\*\*.*?\*\*)/);
-      return (
-        <p key={i}>
-          {parts.map((part, idx) => 
-            part.startsWith('**') && part.endsWith('**') 
-              ? <strong key={idx} className="font-extrabold text-indigo-900">{part.slice(2, -2)}</strong> 
-              : part
-          )}
-        </p>
-      );
-    }
-    return <p key={i}>{l}</p>;
-  })}</div>;
+  return (
+    <div className="space-y-2">
+      {lines.map((l, i) => {
+        const urlMatch = l.match(/(https?:\/\/[^\s\]\)]+)/i);
+        const isActionLine = l.toLowerCase().includes('apply') || l.toLowerCase().includes('portal') || l.toLowerCase().includes('link') || l.includes('http');
+        
+        const renderLine = (content: string) => {
+          if (content.includes('**')) {
+            const parts = content.split(/(\*\*.*?\*\*)/);
+            return (
+              <p key={i}>
+                {parts.map((part, idx) => 
+                  part.startsWith('**') && part.endsWith('**') 
+                    ? <strong key={idx} className="font-extrabold text-indigo-900">{part.slice(2, -2)}</strong> 
+                    : part
+                )}
+              </p>
+            );
+          }
+          return <p key={i}>{content}</p>;
+        };
+
+        if (urlMatch && isActionLine) {
+          const url = urlMatch[1].replace(/[).,\] ]$/, '');
+          return (
+            <div key={i} className="flex flex-col gap-2 p-4 bg-indigo-50/30 rounded-2xl border border-indigo-100/50 shadow-sm animate-in zoom-in-95">
+              {renderLine(l.split(/(https?:\/\/[^\s\]\)]+)/i)[0])}
+              <a 
+                href={url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl text-sm font-black shadow-lg shadow-indigo-100 active:scale-95 transition-all w-full md:w-fit"
+              >
+                Apply Now <ExternalLink size={16} />
+              </a>
+            </div>
+          );
+        }
+
+        return renderLine(l);
+      })}
+    </div>
+  );
 };
 
 // --- Auth Components ---
@@ -215,14 +276,14 @@ const AuthScreen = ({ onLogin }: { onLogin: (user: any) => void }) => {
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8 animate-in fade-in">
       <div className="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center text-white text-3xl font-black mb-4 shadow-xl">NS</div>
-      <h1 className="text-3xl font-black text-indigo-900 mb-2">NidhiSahay</h1>
-      <p className="text-slate-400 font-medium mb-12">Empowering Small Savings</p>
+      <h1 className="text-3xl font-black text-indigo-900 mb-2">{getTranslation(selectedLang, 'welcome')}</h1>
+      <p className="text-slate-400 font-medium mb-12">{getTranslation(selectedLang, 'tagline')}</p>
 
       {mode === 'landing' && (
         <div className="w-full max-w-sm space-y-4">
           <div className="flex flex-wrap gap-2 justify-center mb-6">
             {LANGUAGES.map(l => (
-              <button key={l} onClick={() => setSelectedLang(l)} className={`px-3 py-1.5 rounded-full text-xs font-bold border ${selectedLang === l ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-500'}`}>{l}</button>
+              <button key={l} onClick={() => setSelectedLang(l)} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${selectedLang === l ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}>{l}</button>
             ))}
           </div>
           <button onClick={() => setMode('signup')} className="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl shadow-lg">{getTranslation(selectedLang, 'createAccount')}</button>
@@ -232,12 +293,12 @@ const AuthScreen = ({ onLogin }: { onLogin: (user: any) => void }) => {
 
       {(mode === 'signup' || mode === 'login') && (
         <div className="w-full max-w-sm space-y-4 animate-in slide-in-from-bottom-4">
-          {mode === 'signup' && <input type="text" placeholder="Name" className="w-full p-4 bg-slate-50 rounded-2xl border" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />}
+          {mode === 'signup' && <input type="text" placeholder={getTranslation(selectedLang, 'name')} className="w-full p-4 bg-slate-50 rounded-2xl border" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />}
           <div className="flex gap-2">
             <select className="p-4 bg-slate-50 rounded-2xl border font-bold" value={formData.countryCode} onChange={e => setFormData({ ...formData, countryCode: e.target.value })}>
               {COUNTRY_CODES.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
             </select>
-            <input type="tel" maxLength={10} placeholder="Mobile Number" className="flex-1 p-4 bg-slate-50 rounded-2xl border" value={formData.mobile} onChange={e => setFormData({ ...formData, mobile: e.target.value.replace(/\D/g, '') })} />
+            <input type="tel" maxLength={10} placeholder={getTranslation(selectedLang, 'mobile')} className="flex-1 p-4 bg-slate-50 rounded-2xl border" value={formData.mobile} onChange={e => setFormData({ ...formData, mobile: e.target.value.replace(/\D/g, '') })} />
           </div>
           {mode === 'login' && <input type="password" placeholder="mPIN" className="w-full p-4 bg-slate-50 rounded-2xl border" value={formData.mpin} onChange={e => setFormData({ ...formData, mpin: e.target.value })} />}
           {mode === 'signup' && (
@@ -294,7 +355,7 @@ const Dashboard = ({ user, language, onSelectFeature, balances }: any) => {
         <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center"><Mic size={24} className="text-indigo-300" /></div>
         <div>
           <h3 className="text-lg font-black mb-1">Talk to Nidhi AI</h3>
-          <p className="text-xs text-indigo-200 font-medium">I can help with finance tips, loans, and recording transactions.</p>
+          <p className="text-xs text-indigo-200 font-medium">Finance assistance in {language}</p>
         </div>
         <button onClick={() => onSelectFeature('ai_chat')} className="w-full bg-white text-indigo-900 font-black py-4 rounded-xl shadow-lg">Start Conversation</button>
       </div>
@@ -321,6 +382,50 @@ const Dashboard = ({ user, language, onSelectFeature, balances }: any) => {
   );
 };
 
+// --- Loan Flow Specification ---
+const LOAN_QUESTIONS = [
+  {
+    category: "KYC",
+    question: "Can you provide the PAN and Aadhaar details for all promoters, partners, or directors involved in the business?",
+    expectedFormat: "Yes/No, details follow",
+  },
+  {
+    category: "KYC",
+    question: "Are the KYC documents for all stakeholders updated and linked to their current mobile numbers?",
+    expectedFormat: "Yes/No",
+  },
+  {
+    category: "Business Proof",
+    question: "Is your business GST-registered, and are your filings up to date for the current financial year?",
+    expectedFormat: "Yes/No",
+  },
+  {
+    category: "Business Proof",
+    question: "Do you have a valid Trade License or Certificate of Incorporation for this specific entity?",
+    expectedFormat: "Yes/No",
+  },
+  {
+    category: "Bank Statements",
+    question: "Which bank holds your primary current account, and can you provide statements for the last 12 months?",
+    expectedFormat: "Bank Name, Statement availability",
+  },
+  {
+    category: "Bank Statements",
+    question: "Does your bank statement reflect high-value transactions that align with your reported turnover?",
+    expectedFormat: "Yes/No",
+  },
+  {
+    category: "Income Proof (ITR)",
+    question: "Have you consistently filed your Income Tax Returns (ITR) for the last three assessment years?",
+    expectedFormat: "Yes/No, number of years",
+  },
+  {
+    category: "Income Proof (ITR)",
+    question: "What is the 'Net Taxable Income' shown in your latest ITR compared to your previous year's filing?",
+    expectedFormat: "Growth/Decline, percentage or brief details",
+  }
+];
+
 const FeatureScreen = ({ type, user, language, onClose }: any) => {
   const [view, setView] = useState('main');
   const [amount, setAmount] = useState('');
@@ -329,22 +434,13 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [loanJourneyState, setLoanJourneyState] = useState({
-    step: 0,
-    data: {
-      business_type: '',
-      udyam_registered: false,
-      transaction_method: '',
-      has_business_pan: false
-    }
-  });
+  const [loanJourneyIndex, setLoanJourneyIndex] = useState(-1);
   const [educationVideos, setEducationVideos] = useState<any[]>([]);
-
   const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     if (type === 'loan_eligibility') {
-      setChatLog([{ role: 'assistant', content: "Hello! I can help you with a loan for your business. To find the best options, I need to build your profile first.\n\n**What is your business type?** (e.g., Kirana store, Tailoring shop, etc.)" }]);
+      startLoanFlow();
     } else if (type === 'education') {
       loadEducationRecommendations();
     }
@@ -354,158 +450,127 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
-      
       const langMap: Record<string, string> = {
         'English': 'en-US', 'Hindi': 'hi-IN', 'Marathi': 'mr-IN', 'Telugu': 'te-IN',
         'Kannada': 'kn-IN', 'Tamil': 'ta-IN', 'Malayalam': 'ml-IN', 'Punjabi': 'pa-IN'
       };
       recognitionRef.current.lang = langMap[language] || 'en-US';
-
       recognitionRef.current.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
-        if (transcript) {
-          handleSend(transcript);
-        }
+        if (transcript) handleSend(transcript);
       };
-
       recognitionRef.current.onstart = () => setIsListening(true);
       recognitionRef.current.onend = () => setIsListening(false);
     }
-
     return () => recognitionRef.current?.stop();
   }, [type, language]);
 
-  const toggleListening = () => {
-    if (isListening) recognitionRef.current?.stop();
-    else recognitionRef.current?.start();
-  };
+  const toggleListening = () => isListening ? recognitionRef.current?.stop() : recognitionRef.current?.start();
 
-  const translateToEnglish = async (text: string): Promise<string> => {
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const resp = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: [{ parts: [{ text: `Translate the following user input to English. Return only the translated text: "${text}"` }] }]
-      });
-      return resp.text.trim();
-    } catch (e) {
-      console.error("Translation error", e);
-      return text;
-    }
-  };
-
-  const loadEducationRecommendations = async () => {
+  const startLoanFlow = async () => {
     setIsTyping(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const walletTxs = await DB.getWalletBalance(user.mobile);
-      const activityLogs = await DB.getLoggedBalance(user.mobile);
-      
-      const prompt = `Based on a user with wallet balance ${walletTxs} and logged financial activity ${activityLogs}, recommend 3-4 specific educational videos for their financial growth. If there is no sufficient data, give 3-4 videos on Basic Finance. 
-      Respond with ONLY a JSON array of objects: [{ "id": "youtube_id", "title": "video_title", "description": "short_desc" }]`;
-
-      const resp = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: [{ parts: [{ text: prompt }] }],
-        config: { responseMimeType: "application/json" }
-      });
-
-      const parsed = JSON.parse(resp.text || '[]');
-      setEducationVideos(parsed.length ? parsed : [
-        { id: "Z8f-1u3bL2w", title: "Personal Finance 101", description: "Learn the basics of managing your money effectively." },
-        { id: "9L-rG6-7h6U", title: "Saving for the Future", description: "Smart strategies to grow your savings day by day." },
-        { id: "P283YpA3lGk", title: "Understanding Loans", description: "A guide to business and personal credit in India." }
-      ]);
-    } catch (e) {
-      setEducationVideos([
-        { id: "Z8f-1u3bL2w", title: "Personal Finance 101", description: "Learn the basics of managing your money effectively." },
-        { id: "9L-rG6-7h6U", title: "Saving for the Future", description: "Smart strategies to grow your savings day by day." },
-        { id: "P283YpA3lGk", title: "Understanding Loans", description: "A guide to business and personal credit in India." }
-      ]);
-    } finally { setIsTyping(false); }
+    const firstQ = LOAN_QUESTIONS[0];
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const prompt = `Translate this Loan Officer question into natural ${language}: "${firstQ.question}". 
+    Add a polite greeting like "Hello, I am your Loan Officer. Let's check your eligibility."
+    Make the question very direct and clear so the user knows exactly what to answer (e.g., provide hints like "Yes/No").`;
+    
+    const resp = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: [{ parts: [{ text: prompt }] }]
+    });
+    
+    setChatLog([{ role: 'assistant', content: resp.text || firstQ.question }]);
+    setLoanJourneyIndex(0);
+    setIsTyping(false);
   };
 
-  const handleLoanJourneyStep = async (msg: string) => {
-    let nextStep = loanJourneyState.step + 1;
-    let nextData = { ...loanJourneyState.data };
-    let assistantMessage = "";
+  const handleLoanJourneyStep = async (userMsg: string) => {
+    setIsTyping(true);
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const nextIndex = loanJourneyIndex + 1;
 
-    switch (loanJourneyState.step) {
-      case 0:
-        nextData.business_type = await translateToEnglish(msg);
-        assistantMessage = "Great. Is your business **Udyam Registered**? (Yes/No)";
-        break;
-      case 1:
-        nextData.udyam_registered = msg.toLowerCase().includes('yes');
-        assistantMessage = "Got it. How do you mostly handle your business **transactions**? (e.g., Cash, Digital, or Both)";
-        break;
-      case 2:
-        nextData.transaction_method = await translateToEnglish(msg);
-        assistantMessage = "Understood. One last thing for the profile: Do you have a **Business PAN Card**? (Yes/No)";
-        break;
-      case 3:
-        nextData.has_business_pan = msg.toLowerCase().includes('yes');
-        setIsTyping(true);
-        // Persist interaction history for analysis in miscellaneous column
-        await DB.saveLoanEligibility(user.mobile, nextData, [...chatLog, { role: 'user', content: msg }]);
-        
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        const analysisPrompt = `A user wants a loan. Profile (translated to English): Business Type: ${nextData.business_type}, Udyam Registered: ${nextData.udyam_registered}, Transaction Method: ${nextData.transaction_method}, Business PAN: ${nextData.has_business_pan}. 
-        Recommend 2-3 suitable government loan schemes like MUDRA, PM SVANidhi, etc. Provide Link to portal janasamarth.in. Format with bullet points. End with: "Which scheme would you like to know more about?"`;
+    let assistantResponse = "";
 
-        const resp = await ai.models.generateContent({
-          model: 'gemini-3-flash-preview',
-          contents: [{ parts: [{ text: analysisPrompt }] }],
-          config: { systemInstruction: `You are an expert financial loan agent for small businesses in India.` }
-        });
-        assistantMessage = resp.text || "Thank you. I'm analyzing your profile against available loan schemes...";
-        setIsTyping(false);
-        break;
-      default:
-        setIsTyping(true);
-        const aiCont = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        const respCont = await aiCont.models.generateContent({
-          model: 'gemini-3-flash-preview',
-          contents: [{ parts: [{ text: `History: ${JSON.stringify(chatLog)}. User says: ${msg}. Provide detailed terms and guide them to janasamarth.in.` }] }],
-          config: { systemInstruction: `You are Nidhi Assistant guiding a user through a loan application.` }
-        });
-        assistantMessage = respCont.text || "I can help you apply. Would you like me to guide you through the next steps?";
-        setIsTyping(false);
-        break;
+    if (nextIndex < LOAN_QUESTIONS.length) {
+      const nextQ = LOAN_QUESTIONS[nextIndex];
+      const nextPrompt = `Politely acknowledge the previous response in ${language}, then ask the next Loan Officer question clearly in ${language}: "${nextQ.question}".
+      The question should be asked in a way where the user knows exactly what to answer (Expected format: ${nextQ.expectedFormat}).
+      Do NOT provide any suggestions or feedback, ONLY ask the question.`;
+      
+      const nextResp = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: [{ parts: [{ text: nextPrompt }] }]
+      });
+      assistantResponse = nextResp.text || nextQ.question;
+      setLoanJourneyIndex(nextIndex);
+    } else {
+      // End of flow: Recommend Schemes
+      const summaryPrompt = `Based on a completed loan eligibility interview, recommend 2 relevant Government Loan Schemes (e.g., PM SVANidhi, Mudra).
+      For each scheme, provide:
+      1. Scheme Name
+      2. Key Benefit
+      3. A direct application link in a button format (e.g., Apply Now [URL]).
+      Official links: PM SVANidhi (https://pmsvanidhi.mohua.gov.in/), MUDRA (https://www.mudra.org.in/).
+      Respond strictly in ${language} using Markdown.`;
+      
+      const summaryResp = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: [{ parts: [{ text: summaryPrompt }] }]
+      });
+      assistantResponse = summaryResp.text || "You have completed the assessment. Visit PM SVANidhi for next steps.";
+      setLoanJourneyIndex(-1);
     }
 
-    setLoanJourneyState({ step: nextStep, data: nextData });
-    setChatLog(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
+    setChatLog(prev => [...prev, { role: 'assistant', content: assistantResponse }]);
+    setIsTyping(false);
   };
 
   const handleSend = async (msg: string = inputText) => {
     if (!msg.trim()) return;
     setChatLog(prev => [...prev, { role: 'user', content: msg }]);
     setInputText('');
-
     if (type === 'loan_eligibility') {
       handleLoanJourneyStep(msg);
       return;
     }
-
     setIsTyping(true);
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       if (type === 'log_activity') {
-        const prompt = `You are a financial transaction parser. Extract details from: "${msg}" in language ${language}. Respond ONLY with a JSON object: { "amount": <number>, "type": "income" | "expense", "category": "<string>", "description": "<string>" }. Ensure 'category' and 'description' are in English for the database.`;
+        const prompt = `Parse transaction: "${msg}". Respond JSON: { "amount": <number>, "type": "income" | "expense", "category": "<string>", "description": "<string>" }. User Language: ${language}.`;
         const resp = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: [{ parts: [{ text: prompt }] }], config: { responseMimeType: "application/json" } });
         const parsed = JSON.parse(resp.text || '{}');
         if (parsed.amount) {
           await DB.addMoneyLog(user.mobile, parsed);
-          setChatLog(prev => [...prev, { role: 'assistant', content: `Logged ₹${parsed.amount} as ${parsed.type} (${parsed.category}).` }]);
+          const newBal = await DB.getLoggedBalance(user.mobile);
+          const voicePrompt = `Confirm logging ${parsed.amount} as ${parsed.type} in ${language}. Total is ${newBal}.`;
+          const voiceRes = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: [{ parts: [{ text: voicePrompt }] }] });
+          playVoice(voiceRes.text || `Logged ${parsed.amount}.`, language);
+          setChatLog(prev => [...prev, { role: 'assistant', content: voiceRes.text || `Logged ₹${parsed.amount}.` }]);
         } else {
-          setChatLog(prev => [...prev, { role: 'assistant', content: "I couldn't identify the amount. Please try saying it like 'Spent 50 on tea'." }]);
+          setChatLog(prev => [...prev, { role: 'assistant', content: "Identify amount error." }]);
         }
       } else {
-        const resp = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: [{ parts: [{ text: msg }] }], config: { systemInstruction: `You are Nidhi Assistant. Help with ${type} in ${language}.` } });
+        const resp = await ai.models.generateContent({ 
+          model: 'gemini-3-flash-preview', 
+          contents: [{ parts: [{ text: msg }] }], 
+          config: { systemInstruction: `You are Nidhi Assistant. Speak ONLY in ${language}.` } 
+        });
         setChatLog(prev => [...prev, { role: 'assistant', content: resp.text }]);
+        playVoice(resp.text || "...", language);
       }
     } catch (e) { console.error(e); } finally { setIsTyping(false); }
+  };
+
+  const loadEducationRecommendations = async () => {
+    setIsTyping(true);
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const prompt = `Recommend 3 specific growth videos for MSMEs in ${language}. Respond JSON: [{ "id": "youtube_id", "title": "...", "description": "..." }]`;
+      const resp = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: [{ parts: [{ text: prompt }] }], config: { responseMimeType: "application/json" } });
+      setEducationVideos(JSON.parse(resp.text || '[]'));
+    } catch (e) { setEducationVideos([]); } finally { setIsTyping(false); }
   };
 
   if (type === 'add_money') {
@@ -513,7 +578,7 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
       <div className="space-y-8 py-4 animate-in slide-in-from-bottom-4">
         <header className="flex items-center gap-4 px-2">
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full"><ArrowLeft size={20}/></button>
-          <h3 className="font-black text-indigo-900">Add Money to Wallet</h3>
+          <h3 className="font-black text-indigo-900">{getTranslation(language, 'addMoney')}</h3>
         </header>
         <div className="text-center"><p className="text-xs font-bold text-slate-400 mb-2 uppercase">Amount to Add</p><h2 className="text-6xl font-black text-indigo-900">₹{amount || '0'}</h2></div>
         <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto px-4">
@@ -529,7 +594,14 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
         <div className="flex gap-4 mb-12">{[1, 2, 3, 4].map(i => <div key={i} className={`w-4 h-4 rounded-full border-2 transition-all ${pin.length >= i ? 'bg-indigo-600 border-indigo-600' : 'bg-white border-slate-200'}`} />)}</div>
         <div className="grid grid-cols-3 gap-8 w-full max-w-xs">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '✓'].map(n => (
-            <button key={n} onClick={async () => { if (n === 'C') setPin(pin.slice(0, -1)); else if (n === '✓') { if (pin.length >= 4) { await DB.addWalletTx(user.mobile, parseInt(amount)); setView('success'); } } else if (pin.length < 4) setPin(pin + n); }} className="h-12 font-black text-2xl active:bg-slate-50 rounded-full transition">{n}</button>
+            <button key={n} onClick={async () => { if (n === 'C') setPin(pin.slice(0, -1)); else if (n === '✓') { if (pin.length >= 4) { 
+              await DB.addWalletTx(user.mobile, parseInt(amount)); 
+              const newBal = await DB.getWalletBalance(user.mobile);
+              const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+              const voiceRes = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: [{ parts: [{ text: `Confirm adding ${amount} to wallet in ${language}.` }] }] });
+              playVoice(voiceRes.text || `Added ${amount}.`, language);
+              setView('success'); 
+            } } else if (pin.length < 4) setPin(pin + n); }} className="h-12 font-black text-2xl active:bg-slate-50 rounded-full transition">{n}</button>
           ))}
         </div>
       </div>
@@ -537,7 +609,7 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
     if (view === 'success') return (
       <div className="fixed inset-0 bg-white z-[60] flex flex-col items-center justify-center p-8 text-center animate-in fade-in">
         <div className="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-6 shadow-xl"><CheckCircle2 size={56} /></div>
-        <h2 className="text-3xl font-black text-slate-900 mb-2">Transaction Successful</h2>
+        <h2 className="text-3xl font-black text-slate-900 mb-2">{getTranslation(language, 'success')}</h2>
         <p className="text-slate-400 font-bold mb-8">₹{amount} added to your Nidhi Wallet.</p>
         <button onClick={onClose} className="w-full max-w-sm bg-indigo-600 text-white font-black py-5 rounded-2xl shadow-xl">Done</button>
       </div>
@@ -552,14 +624,10 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
           <h3 className="font-black text-indigo-900">{getTranslation(language, 'education')}</h3>
         </header>
         <div className="flex-1 overflow-y-auto space-y-8 pb-10">
-          <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 flex gap-3 items-center">
-            <Info className="text-indigo-600" size={20}/>
-            <p className="text-xs font-bold text-indigo-900">Recommended for you by Nidhi AI based on your financial logs.</p>
-          </div>
           <div className="grid grid-cols-1 gap-6">
             {educationVideos.map((video, idx) => (
               <div key={idx} className="card p-4 space-y-3">
-                <div className="aspect-video w-full rounded-xl overflow-hidden shadow-inner bg-slate-900">
+                <div className="aspect-video w-full rounded-xl overflow-hidden bg-slate-900">
                    <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${video.id}`} title={video.title} frameBorder="0" allowFullScreen />
                 </div>
                 <h4 className="font-black text-slate-800">{video.title}</h4>
@@ -585,7 +653,7 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
       <div className="p-4 bg-white border-t flex flex-col gap-3 shadow-2xl">
         <div className="flex gap-2">
           <button onClick={toggleListening} className={`p-4 rounded-full transition relative ${isListening ? 'bg-rose-500 text-white animate-pulse' : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'}`}><Mic size={22} /></button>
-          <input type="text" placeholder={isListening ? "Listening..." : "Type message..."} className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 font-bold text-sm outline-none focus:ring-2 ring-indigo-500 transition" value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} />
+          <input type="text" placeholder={getTranslation(language, 'next')} className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 font-bold text-sm outline-none focus:ring-2 ring-indigo-500 transition" value={inputText} onChange={e => setInputText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} />
           <button onClick={() => handleSend()} className="p-4 bg-indigo-600 text-white rounded-full shadow-lg transition"><Send size={22} /></button>
         </div>
       </div>
@@ -595,29 +663,16 @@ const FeatureScreen = ({ type, user, language, onClose }: any) => {
 
 // --- Profile Screen Component ---
 const ProfileScreen = ({ user, language, onBack, onLogout, onForgetMe }: any) => {
-  const [target, setTarget] = useState(user.target || 100);
-  const handleUpdateTarget = async (newVal: number) => {
-    setTarget(newVal);
-    await DB.updateProfile(user.mobile, { target: newVal });
-  };
-
   return (
     <div className="space-y-6 animate-in fade-in pb-20">
-      <header className="flex items-center gap-4"><button onClick={onBack} className="p-2 hover:bg-white rounded-full"><ArrowLeft size={20} /></button><h2 className="text-xl font-black text-indigo-900">My Profile</h2></header>
+      <header className="flex items-center gap-4"><button onClick={onBack} className="p-2 hover:bg-white rounded-full"><ArrowLeft size={20} /></button><h2 className="text-xl font-black text-indigo-900">{getTranslation(language, 'profile')}</h2></header>
       <div className="card p-6 flex items-center gap-6">
         <div className="w-16 h-16 bg-indigo-100 rounded-3xl flex items-center justify-center text-indigo-600 shadow-inner"><User size={32} /></div>
         <div><h3 className="text-lg font-black text-slate-800">{user.name}</h3><p className="text-sm text-slate-500 font-bold">{user.mobile}</p></div>
       </div>
-      <div className="card p-6 space-y-6">
-        <div className="flex justify-between items-center"><span className="font-bold text-slate-600">Daily Savings Target</span><div className="flex items-center gap-3 bg-slate-50 p-2 rounded-xl"><button onClick={() => handleUpdateTarget(Math.max(0, target - 50))} className="w-8 h-8 bg-white border border-slate-200 rounded-lg font-bold shadow-sm">-</button><span className="font-black px-2 tabular-nums">₹{target}</span><button onClick={() => handleUpdateTarget(target + 50)} className="w-8 h-8 bg-white border border-slate-200 rounded-lg font-bold shadow-sm">+</button></div></div>
-        <div className="flex items-center gap-4 p-4 bg-indigo-50 border border-indigo-100 rounded-3xl shadow-sm">
-          <div className="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-md"><Star size={24} /></div>
-          <div><h4 className="font-black text-indigo-900">Level {user.level || 1} Saver</h4><p className="text-[10px] text-indigo-700 font-black tracking-wide uppercase">Keep saving to increase your level!</p></div>
-        </div>
-      </div>
       <div className="grid grid-cols-1 gap-3">
-        <button onClick={onLogout} className="w-full flex items-center justify-center gap-3 p-5 bg-white border border-slate-200 rounded-3xl text-slate-700 font-black shadow-sm transition hover:bg-slate-50"><LogOut size={20} className="text-indigo-600" /><span>Logout</span></button>
-        <button onClick={onForgetMe} className="w-full flex items-center justify-center gap-3 p-5 bg-rose-50 text-rose-600 rounded-3xl font-black shadow-sm transition border border-rose-100 hover:bg-rose-100"><Trash2 size={20} /><span>Forget Me</span></button>
+        <button onClick={onLogout} className="w-full flex items-center justify-center gap-3 p-5 bg-white border border-slate-200 rounded-3xl text-slate-700 font-black shadow-sm transition hover:bg-slate-50"><LogOut size={20} className="text-indigo-600" /><span>{getTranslation(language, 'logout')}</span></button>
+        <button onClick={onForgetMe} className="w-full flex items-center justify-center gap-3 p-5 bg-rose-50 text-rose-600 rounded-3xl font-black shadow-sm transition border border-rose-100 hover:bg-rose-100"><Trash2 size={20} /><span>{getTranslation(language, 'forgetMe')}</span></button>
       </div>
     </div>
   );
@@ -637,11 +692,10 @@ const App = () => {
     if (saved) {
       DB.getProfile(saved).then(p => {
         if (p) {
-          setUser(p); setLanguage(p.language || 'English');
-          refreshBalances(p.mobile); setScreen('home');
-        } else { setScreen('auth'); }
+          setUser(p); setLanguage(p.language || 'English'); refreshBalances(p.mobile); setScreen('home');
+        } else setScreen('auth');
       });
-    } else { setScreen('auth'); }
+    } else setScreen('auth');
   }, []);
 
   const refreshBalances = async (mobile: string) => {
@@ -656,43 +710,39 @@ const App = () => {
   };
 
   const handleLogout = () => {
-    if (user) DB.logAuthEvent(user.mobile, 'logout');
     localStorage.removeItem('ns_session_mobile');
-    setUser(null); setScreen('auth'); setIsMenuOpen(false);
+    setUser(null); setScreen('auth');
   };
 
   const handleForgetMe = async () => {
-    if (window.confirm("Are you sure? This will delete all your data permanently from our database.")) {
-      if (user) await DB.clearUserData(user.mobile);
-      localStorage.removeItem('ns_session_mobile');
-      setUser(null); setScreen('auth'); setIsMenuOpen(false);
+    if (user && window.confirm("Delete profile?")) {
+      await DB.clearUserData(user.mobile);
+      handleLogout();
     }
   };
 
-  if (screen === 'loading') return <div className="h-screen flex items-center justify-center bg-white"><div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" /></div>;
+  if (screen === 'loading') return <div className="h-screen flex items-center justify-center"><div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent animate-spin rounded-full"/></div>;
   if (screen === 'auth') return <AuthScreen onLogin={handleLogin} />;
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20">
-      <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-4 z-50 shadow-sm">
-        <div className="flex items-center gap-2"><div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black shadow-lg">NS</div><span className="font-black text-xl tracking-tight text-indigo-900">NidhiSahay</span></div>
-        <div className="flex items-center gap-3"><button onClick={() => setSubScreen('add_money')} className="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full font-black text-xs border border-indigo-100 shadow-sm hover:bg-indigo-100 transition">₹{balances.wallet}</button><button onClick={() => setIsMenuOpen(true)} className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition"><Menu size={24} /></button></div>
+      <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-4 z-50">
+        <div className="flex items-center gap-2"><div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black">NS</div><span className="font-black text-xl text-indigo-900">NidhiSahay</span></div>
+        <div className="flex items-center gap-3"><button onClick={() => setSubScreen('add_money')} className="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full font-black text-xs">₹{balances.wallet}</button><button onClick={() => setIsMenuOpen(true)} className="p-2"><Menu size={24} /></button></div>
       </header>
 
       {isMenuOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] animate-in fade-in" onClick={() => setIsMenuOpen(false)}>
-          <div className="absolute top-0 right-0 w-80 h-full bg-white shadow-2xl flex flex-col p-8 animate-in slide-in-from-right duration-300" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center mb-10"><h2 className="text-2xl font-black text-slate-800 tracking-tight">Settings</h2><button onClick={() => setIsMenuOpen(false)} className="p-2 hover:bg-slate-50 rounded-full transition"><X /></button></div>
-            <div className="flex-1 space-y-2">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Select Language</p>
-              <div className="grid grid-cols-2 gap-2 mb-8">
+        <div className="fixed inset-0 bg-black/20 z-[100]" onClick={() => setIsMenuOpen(false)}>
+          <div className="absolute top-0 right-0 w-80 h-full bg-white p-8 animate-in slide-in-from-right" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-10"><h2 className="text-2xl font-black">Settings</h2><button onClick={() => setIsMenuOpen(false)}><X /></button></div>
+            <div className="space-y-4">
+              <p className="text-xs font-black text-slate-400 uppercase">Language</p>
+              <div className="grid grid-cols-2 gap-2">
                 {LANGUAGES.map(l => (
-                   <button key={l} onClick={async () => { setLanguage(l); setIsMenuOpen(false); await DB.updateProfile(user.mobile, { language: l }); }} className={`p-3 rounded-2xl text-[10px] font-black border transition-all ${language === l ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-white border-slate-100 text-slate-600 hover:bg-slate-50'}`}>{l}</button>
+                  <button key={l} onClick={async () => { setLanguage(l); setIsMenuOpen(false); if(user) await DB.updateProfile(user.mobile, { language: l }); }} className={`p-3 rounded-2xl text-[10px] font-black border ${language === l ? 'bg-indigo-600 text-white' : 'bg-white'}`}>{l}</button>
                 ))}
               </div>
-              <button onClick={handleForgetMe} className="w-full flex items-center gap-3 p-4 text-rose-600 bg-rose-50 rounded-2xl font-black shadow-sm active:scale-95 transition hover:bg-rose-100"><Trash2 size={20} /> {getTranslation(language, 'forgetMe')}</button>
             </div>
-            <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 p-5 text-slate-700 bg-slate-100 rounded-3xl font-black transition hover:bg-slate-200"><LogOut size={22} /><span>{getTranslation(language, 'logout')}</span></button>
           </div>
         </div>
       )}
@@ -703,10 +753,10 @@ const App = () => {
         {screen === 'profile' && <ProfileScreen user={user} language={language} onBack={() => setScreen('home')} onLogout={handleLogout} onForgetMe={handleForgetMe} />}
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-md border-t border-slate-100 flex items-center justify-around px-4 z-40">
-        <button onClick={() => { setScreen('home'); setSubScreen(null); }} className={`flex flex-col items-center gap-1 transition-all ${screen === 'home' && !subScreen ? 'text-indigo-600 scale-110 font-black' : 'text-slate-400 font-bold hover:text-indigo-400'}`}><BarChart3 size={22} /><span className="text-[10px] uppercase tracking-tighter">Home</span></button>
-        <button onClick={() => { setSubScreen('ai_chat'); }} className={`flex flex-col items-center gap-1.5 p-3 -mt-8 bg-indigo-600 text-white rounded-full shadow-2xl transition hover:bg-indigo-700`}><Mic size={24} /></button>
-        <button onClick={() => { setScreen('profile'); }} className={`flex flex-col items-center gap-1 transition-all ${screen === 'profile' ? 'text-indigo-600 scale-110 font-black' : 'text-slate-400 font-bold hover:text-indigo-400'}`}><User size={22} /><span className="text-[10px] uppercase tracking-tighter">Profile</span></button>
+      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t flex items-center justify-around px-4 z-40">
+        <button onClick={() => { setScreen('home'); setSubScreen(null); }} className={`flex flex-col items-center gap-1 ${screen === 'home' && !subScreen ? 'text-indigo-600' : 'text-slate-400'}`}><BarChart3 size={22} /><span className="text-[10px] font-black">HOME</span></button>
+        <button onClick={() => setSubScreen('ai_chat')} className="p-3 -mt-8 bg-indigo-600 text-white rounded-full shadow-lg"><Mic size={24}/></button>
+        <button onClick={() => setScreen('profile')} className={`flex flex-col items-center gap-1 ${screen === 'profile' ? 'text-indigo-600' : 'text-slate-400'}`}><User size={22} /><span className="text-[10px] font-black">PROFILE</span></button>
       </nav>
     </div>
   );
